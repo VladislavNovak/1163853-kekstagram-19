@@ -1,7 +1,7 @@
 # Личный проект «Кекстаграм» [![Build status][travis-image]][travis-url]
 
 * Студент: [Влад Новак](https://up.htmlacademy.ru/javascript/19/user/1163853).
-* Наставник: `Неизвестно`.
+* Наставник: `Ярослав Ермилов`.
 
 ---
 

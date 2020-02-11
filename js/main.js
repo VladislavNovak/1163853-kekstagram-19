@@ -17,22 +17,27 @@ var NAMES = [
   'Виолетта', 'Юлия', 'Снежана', 'Милослава', 'Евпраксия',
 ];
 
-var DESCRIPTS = [
+var DESCRIPTIONS = [
   'description',
 ];
 
 var TOTAL_PHOTOS = 25;
 var TOTAL_USERS = 6;
 var arrayPhotos = [];
+var QUANTITY_MINIMUM_COMMENTS = 1;
+var QUANTITY_MAXIMUM_COMMENTS = 7;
+var MINIMUM_LIKES = 15;
+var MAXIMUM_LIKES = 200;
 
 // ------------Обслуживающие функции--------------------------
 
-var getRandNumber = function (min, max) {
-  var rand = min + Math.random() * (max - min);
+var getRandNumber = function (minimum, maximum) {
+  var rand = minimum + Math.random() * (maximum - minimum);
+
   return Math.floor(rand);
 };
 
-var addNewItem = function (array) {
+var getRandomItem = function (array) {
   var item = array[getRandNumber(0, array.length)];
 
   return item;
@@ -40,15 +45,17 @@ var addNewItem = function (array) {
 
 // ------------Склейка нескольких посланий--------------------------
 
-var collectComments = function (comments) {
-  var comment;
-  // comment = addNewItem(comments);
-  comment = comments.splice(addNewItem(comments), 1);
-  var tmp = getRandNumber(0, 2);
-  if (tmp) {
-    comment += (' ' + addNewItem(comments));
+var collectComments = function (messagesToProcess) {
+  // для того, чтобы склеенные сообщения были уникальными:
+  // 1. getRandomItem возвращает random элемент массива MESSAGES
+  // 2. в MESSAGES посредством splice удаляется найденный random-элемент
+  // 3. и он же методом splice возвращается
+  var message = messagesToProcess.splice(getRandomItem(messagesToProcess), 1);
+  if (getRandNumber(0, 2)) {
+    message += (' ' + getRandomItem(messagesToProcess));
   }
-  return comment;
+
+  return message;
 };
 
 // ------------Создаёт массив комментариев--------------------------
@@ -56,16 +63,15 @@ var collectComments = function (comments) {
 // возвращает массив комментариев (с аватаркой, посланием, именем комментатора)
 var addNewMessage = function (messages, names, totalUsers) {
   var comments = [];
-  var quantityMinComments = 1;
-  var quantityMaxComments = 7;
 
-  for (var i = 0; i < getRandNumber(quantityMinComments, quantityMaxComments + 1); i++) {
+  for (var i = 0; i < getRandNumber(QUANTITY_MINIMUM_COMMENTS, QUANTITY_MAXIMUM_COMMENTS + 1); i++) {
     comments.push({
       avatar: './img/avatar-' + getRandNumber(1, totalUsers + 1) + '.svg',
       message: collectComments(messages),
-      name: addNewItem(names),
+      name: getRandomItem(names),
     });
   }
+
   return comments;
 };
 
@@ -74,21 +80,20 @@ var addNewMessage = function (messages, names, totalUsers) {
 // функция-заглушка. Если появятся дополнительные описания, её можно расширить
 var getDescription = function (descriptions) {
   var item = descriptions[0];
+
   return item;
 };
 
 // ------------Создает коллекцию из 25 объектов--------------------------
 
 // (с путём до фото, описанием, лайками и группой комментариев)
-var getDepictions = function (arrayToProcess, totalPhotos, messages, names, descripts, totalUsers) {
-  var minLikes = 15;
-  var maxLikes = 200;
+var getCollection = function (arrayToProcess, totalPhotos, messages, names, descriptions, totalUsers) {
 
   for (var i = 0; i < totalPhotos; i++) {
     arrayToProcess.push({
       url: './photos/' + (i + 1) + '.jpg',
-      description: getDescription(descripts),
-      likes: getRandNumber(minLikes, maxLikes),
+      description: getDescription(descriptions),
+      likes: getRandNumber(MINIMUM_LIKES, MAXIMUM_LIKES),
       comments: addNewMessage(messages, names, totalUsers),
     });
   }
@@ -96,9 +101,9 @@ var getDepictions = function (arrayToProcess, totalPhotos, messages, names, desc
   return arrayToProcess;
 };
 
-// ------------Массив из 25 объектов--------------------------
+// ------------Получаем массив из 25 объектов--------------------------
 
-var depictions = getDepictions(arrayPhotos, TOTAL_PHOTOS, MESSAGES, NAMES, DESCRIPTS, TOTAL_USERS);
+var collection = getCollection(arrayPhotos, TOTAL_PHOTOS, MESSAGES, NAMES, DESCRIPTIONS, TOTAL_USERS);
 
 
 // ---------------Обрабатываем шаблон------------------------------
@@ -112,7 +117,6 @@ var processOnePhoto = function (photo) {
   picture.querySelector('.picture__img').src = photo.url;
   picture.querySelector('.picture__likes').textContent = photo.likes;
   picture.querySelector('.picture__comments').textContent = photo.comments.length;
-
 
   // добавляем 'клону шаблона' нужные свойства и возвращаем его
   return picture;
@@ -139,4 +143,4 @@ var renderPhotos = function (photos) {
 
 // --------------Отрисовывает фотографии в .pictures--------------------
 
-renderPhotos(depictions);
+renderPhotos(collection);

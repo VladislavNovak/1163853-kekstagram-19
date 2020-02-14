@@ -12,13 +12,30 @@ var MESSAGES = [
 ];
 
 var NAMES = [
-  'Захар', 'Денис', 'Константин', 'Августин', 'Игнатий', 'Осип', 'Илья', 'Афанасий', 'Руслан', 'Станислав',
-  'Дементий', 'Валентина', 'Агата', 'Дорофея', 'Алиса', 'Майя', 'Алина', 'Лариса', 'Декабрина', 'Зарина',
-  'Виолетта', 'Юлия', 'Снежана', 'Милослава', 'Евпраксия',
+  'Захар', 'Евдоким', 'Еремей', 'Фрол', 'Игнатий', 'Осип', 'Игнат', 'Афанасий', 'Никодим', 'Радослав',
+  'Дементий', 'Домна', 'Агата', 'Дорофея', 'Фекла', 'Платонида', 'Устинья', 'Иоанна', 'Декабрина', 'Зарина',
+  'Виолетта', 'Викторина', 'Снежана', 'Милослава', 'Евпраксия',
 ];
 
 var DESCRIPTIONS = [
-  'description',
+  'Разорванное фото склеить можно. Разорванную душу - никогда',
+  'Хэллоуин близится... а ты уже купил топор к празднику?',
+  'Главное - верить в себя. Мнение окружающих меняется ежедневно',
+  'Я не часто снимаю селфи, но когда доходят руки…',
+  'Разве не потрясающе?',
+  'Открываю для себя мир. Скоро вернусь',
+  'Калории, набранные в отпуске, не считаются',
+  'Если жизнь подкидывает мне лимоны, я делаю из них лимонад',
+  'Если бы у меня было чувство юмора, я бы придумал подпись посмешнее',
+  'Пришел, увидел, забыл, что хотел',
+  'Нельзя просто так взять и сочинить глубокомысленный текст для фото',
+  'Вторник – день вкусняшек',
+  'Сонное воскресенье и по традиции сонное селфи',
+  'Среда. Время поделиться умной цитатой',
+  'Выходные, пожалуйста, не оставляйте меня сейчас!',
+  'Бесит, когда спрашивают: "Вы расстались? Прошла любовь, завяли помидоры?" За своим огородом следи, дачница херова!',
+  'Как много девушек хороших мечтают в тайне о плохом',
+  'Отличных выходных',
 ];
 
 var TOTAL_PHOTOS = 25;
@@ -75,15 +92,6 @@ var addNewMessage = function (messages, names, totalUsers) {
   return comments;
 };
 
-// --------------------------------------
-
-// функция-заглушка. Если появятся дополнительные описания, её можно расширить
-var getDescription = function (descriptions) {
-  var item = descriptions[0];
-
-  return item;
-};
-
 // ------------Создает коллекцию из 25 объектов--------------------------
 
 // (с путём до фото, описанием, лайками и группой комментариев)
@@ -92,7 +100,7 @@ var getCollection = function (arrayToProcess, totalPhotos, messages, names, desc
   for (var i = 0; i < totalPhotos; i++) {
     arrayToProcess.push({
       url: './photos/' + (i + 1) + '.jpg',
-      description: getDescription(descriptions),
+      description: getRandomItem(descriptions),
       likes: getRandNumber(MINIMUM_LIKES, MAXIMUM_LIKES),
       comments: addNewMessage(messages, names, totalUsers),
     });
@@ -124,7 +132,7 @@ var processOnePhoto = function (photo) {
 
 // --------------В цикле создаём похожие объекты--------------------
 
-var renderPhotos = function (photos) {
+var createTileOfPhotos = function (photos) {
   // контейнер. Сюда будем помещать объекты, чтобы избежать лишних перерисовок
   var fragment = document.createDocumentFragment();
 
@@ -137,10 +145,74 @@ var renderPhotos = function (photos) {
   // добавляем контейнер в DOM
   var picturesBlock = document.querySelector('.pictures');
   picturesBlock.appendChild(fragment);
-
-  return picturesBlock;
 };
 
 // --------------Отрисовывает фотографии в .pictures--------------------
 
-renderPhotos(collection);
+createTileOfPhotos(collection);
+
+
+// --------------Переменные к .big-picture--------------------
+
+var bigPicture = document.querySelector('.big-picture');
+var pathToPhoto = bigPicture.querySelector('.big-picture__img').querySelector('img');
+var socialLikes = bigPicture.querySelector('.big-picture__social').querySelector('.social__likes');
+var socialCaption = bigPicture.querySelector('.big-picture__social').querySelector('.social__caption');
+var commentsCount = bigPicture.querySelector('.social__comment-count').querySelector('.comments-count');
+var socialCommentsList = bigPicture.querySelector('.social__comments');
+
+// показываем блок .big-picture
+bigPicture.classList.remove('hidden');
+
+// --------------Заполняет .bigPicture комметнариями--------------------
+
+var processOneComment = function (comment) {
+  var socialComment = socialCommentsList.querySelector('.social__comment').cloneNode(true);
+  var avatar = socialComment.querySelector('.social__picture');
+  var text = socialComment.querySelector('.social__text');
+
+  avatar.src = comment.avatar;
+  avatar.alt = comment.name;
+  text.textContent = comment.message;
+
+  return socialComment;
+};
+
+// --------------Заполняет .bigPicture: url, описание, количество лайков---------------
+
+var drawBigPictures = function (item) {
+  // контейнер. Сюда будем помещать объекты, чтобы избежать лишних перерисовок:
+  var fragment = document.createDocumentFragment();
+
+  // заполняем путь, лайки, кол.комментариев, описание:
+  pathToPhoto.src = item.url;
+  socialLikes.textContent = item.likes;
+  socialCaption.textContent = item.description;
+  commentsCount.textContent = item.comments.length;
+
+  for (var i = 0; i < item.comments.length; i++) {
+    var comment = processOneComment(item.comments[i]);
+    fragment.appendChild(comment);
+  }
+
+  // удаляем дефолтные сообщения (в разметке):
+  socialCommentsList.innerHTML = '';
+  // добавляем новые:
+  socialCommentsList.appendChild(fragment);
+};
+
+drawBigPictures(collection[0]);
+
+// --------------Скрываем:---------------
+
+// блок счётчика комментариев
+var socialCommentCount = bigPicture.querySelector('.social__comment-count');
+socialCommentCount.classList.add('hidden');
+// блок загрузки новых комментариев
+var commentsLoader = bigPicture.querySelector('.comments-loader');
+commentsLoader.classList.add('hidden');
+
+// --------------контейнер с фотографиями позади не прокручивался при скролле ---------------
+
+var body = document.body;
+body.classList.add('modal-open');

@@ -100,7 +100,6 @@ var getCollection = function (arrayToProcess, totalPhotos, messages, names, desc
   for (var i = 0; i < totalPhotos; i++) {
     arrayToProcess.push({
       url: './photos/' + (i + 1) + '.jpg',
-      // description: getDescription(descriptions),
       description: getRandomItem(descriptions),
       likes: getRandNumber(MINIMUM_LIKES, MAXIMUM_LIKES),
       comments: addNewMessage(messages, names, totalUsers),

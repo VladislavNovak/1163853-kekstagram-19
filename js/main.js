@@ -35,6 +35,7 @@ var DESCRIPTIONS = [
   'Выходные, пожалуйста, не оставляйте меня сейчас!',
   'Бесит, когда спрашивают: "Вы расстались? Прошла любовь, завяли помидоры?" За своим огородом следи, дачница херова!',
   'Как много девушек хороших мечтают в тайне о плохом',
+  'Отличных выходных',
 ];
 
 var TOTAL_PHOTOS = 25;
@@ -89,15 +90,6 @@ var addNewMessage = function (messages, names, totalUsers) {
   }
 
   return comments;
-};
-
-// --------------------------------------
-
-// функция-заглушка. Если появятся дополнительные описания, её можно расширить
-var getDescription = function (descriptions) {
-  var item = descriptions[0];
-
-  return item;
 };
 
 // ------------Создает коллекцию из 25 объектов--------------------------
@@ -169,7 +161,6 @@ var socialLikes = bigPicture.querySelector('.big-picture__social').querySelector
 var socialCaption = bigPicture.querySelector('.big-picture__social').querySelector('.social__caption');
 var commentsCount = bigPicture.querySelector('.social__comment-count').querySelector('.comments-count');
 var socialCommentsList = bigPicture.querySelector('.social__comments');
-var nativeSocialComment = socialCommentsList.querySelectorAll('.social__comment');
 
 // показываем блок .big-picture
 bigPicture.classList.remove('hidden');

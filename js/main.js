@@ -60,8 +60,7 @@ var getRandomItem = function (array) {
   return item;
 };
 
-// ------------Склейка нескольких посланий--------------------------
-
+// Склейка нескольких посланий:
 var collectComments = function (messagesToProcess) {
   // для того, чтобы склеенные сообщения были уникальными:
   // 1. getRandomItem возвращает random элемент массива MESSAGES
@@ -75,9 +74,7 @@ var collectComments = function (messagesToProcess) {
   return message;
 };
 
-// ------------Создаёт массив комментариев--------------------------
-
-// возвращает массив комментариев (с аватаркой, посланием, именем комментатора)
+// Возвращает массив комментариев (с аватаркой, посланием, именем комментатора)
 var addNewMessage = function (messages, names, totalUsers) {
   var comments = [];
 
@@ -92,9 +89,7 @@ var addNewMessage = function (messages, names, totalUsers) {
   return comments;
 };
 
-// ------------Создает коллекцию из 25 объектов--------------------------
-
-// (с путём до фото, описанием, лайками и группой комментариев)
+// Создает коллекцию из 25 объектов (с путём до фото, описанием, лайками и группой комментариев):
 var getCollection = function (arrayToProcess, totalPhotos, messages, names, descriptions, totalUsers) {
 
   for (var i = 0; i < totalPhotos; i++) {
@@ -109,14 +104,10 @@ var getCollection = function (arrayToProcess, totalPhotos, messages, names, desc
   return arrayToProcess;
 };
 
-// ------------Получаем массив из 25 объектов--------------------------
-
+// Получаем массив из 25 объектов:
 var collection = getCollection(arrayPhotos, TOTAL_PHOTOS, MESSAGES, NAMES, DESCRIPTIONS, TOTAL_USERS);
 
-
-// ---------------Обрабатываем шаблон------------------------------
-
-// передаём одно описание к фотографии
+// Обрабатываем шаблон. Передаём одно описание к фотографии:
 var processOnePhoto = function (photo) {
   // находим шаблон template picture...
   var pictureFromTemplate = document.querySelector('#picture').content.querySelector('.picture');
@@ -130,8 +121,7 @@ var processOnePhoto = function (photo) {
   return picture;
 };
 
-// --------------В цикле создаём похожие объекты--------------------
-
+// В цикле создаёт похожие объекты:
 var createTileOfPhotos = function (photos) {
   // контейнер. Сюда будем помещать объекты, чтобы избежать лишних перерисовок
   var fragment = document.createDocumentFragment();
@@ -147,72 +137,167 @@ var createTileOfPhotos = function (photos) {
   picturesBlock.appendChild(fragment);
 };
 
-// --------------Отрисовывает фотографии в .pictures--------------------
-
+// Отрисовывает фотографии в .pictures:
 createTileOfPhotos(collection);
 
+// --------------Полноэкранный показ изображения .big-picture--------------------
 
-// --------------Переменные к .big-picture--------------------
-
-var bigPicture = document.querySelector('.big-picture');
-var pathToPhoto = bigPicture.querySelector('.big-picture__img').querySelector('img');
-var socialLikes = bigPicture.querySelector('.big-picture__social').querySelector('.social__likes');
-var socialCaption = bigPicture.querySelector('.big-picture__social').querySelector('.social__caption');
-var commentsCount = bigPicture.querySelector('.social__comment-count').querySelector('.comments-count');
-var socialCommentsList = bigPicture.querySelector('.social__comments');
+var BIG_PICTURE = document.querySelector('.big-picture');
+var PATH_TO_PHOTO = BIG_PICTURE.querySelector('.big-picture__img').querySelector('img');
+var SOCIAL_LIKES = BIG_PICTURE.querySelector('.big-picture__social').querySelector('.social__likes');
+var SOCIAL_CAPTION = BIG_PICTURE.querySelector('.big-picture__social').querySelector('.social__caption');
+var COMMENTS_COUNT = BIG_PICTURE.querySelector('.social__comment-count').querySelector('.comments-count');
+var SOCIAL_COMMENTS_LIST = BIG_PICTURE.querySelector('.social__comments');
 
 // показываем блок .big-picture
-bigPicture.classList.remove('hidden');
+BIG_PICTURE.classList.remove('hidden');
 
-// --------------Заполняет .bigPicture комметнариями--------------------
-
+// Заполняет .big-picture комментариями:
 var processOneComment = function (comment) {
-  var socialComment = socialCommentsList.querySelector('.social__comment').cloneNode(true);
-  var avatar = socialComment.querySelector('.social__picture');
-  var text = socialComment.querySelector('.social__text');
+  var SOCIAL_COMMENT = SOCIAL_COMMENTS_LIST.querySelector('.social__comment').cloneNode(true);
+  var AVATAR = SOCIAL_COMMENT.querySelector('.social__picture');
+  var text = SOCIAL_COMMENT.querySelector('.social__text');
 
-  avatar.src = comment.avatar;
-  avatar.alt = comment.name;
+  AVATAR.src = comment.avatar;
+  AVATAR.alt = comment.name;
   text.textContent = comment.message;
 
-  return socialComment;
+  return SOCIAL_COMMENT;
 };
 
-// --------------Заполняет .bigPicture: url, описание, количество лайков---------------
-
+// Заполняет .big-picture: url, описание, количество лайков:
 var drawBigPictures = function (item) {
   // контейнер. Сюда будем помещать объекты, чтобы избежать лишних перерисовок:
-  var fragment = document.createDocumentFragment();
+  var FRAGMENT = document.createDocumentFragment();
 
   // заполняем путь, лайки, кол.комментариев, описание:
-  pathToPhoto.src = item.url;
-  socialLikes.textContent = item.likes;
-  socialCaption.textContent = item.description;
-  commentsCount.textContent = item.comments.length;
+  PATH_TO_PHOTO.src = item.url;
+  SOCIAL_LIKES.textContent = item.likes;
+  SOCIAL_CAPTION.textContent = item.description;
+  COMMENTS_COUNT.textContent = item.comments.length;
 
   for (var i = 0; i < item.comments.length; i++) {
     var comment = processOneComment(item.comments[i]);
-    fragment.appendChild(comment);
+    FRAGMENT.appendChild(comment);
   }
 
   // удаляем дефолтные сообщения (в разметке):
-  socialCommentsList.innerHTML = '';
+  SOCIAL_COMMENTS_LIST.innerHTML = '';
   // добавляем новые:
-  socialCommentsList.appendChild(fragment);
+  SOCIAL_COMMENTS_LIST.appendChild(FRAGMENT);
 };
 
 drawBigPictures(collection[0]);
 
-// --------------Скрываем:---------------
+// Скрываем блок счётчика комментариев и блок загрузки новых комментариев:
+var SOCIAL_COMMENT_COUNT = BIG_PICTURE.querySelector('.social__comment-count');
+var COMMENTS_LOADER = BIG_PICTURE.querySelector('.comments-loader');
+SOCIAL_COMMENT_COUNT.classList.add('hidden');
+COMMENTS_LOADER.classList.add('hidden');
 
-// блок счётчика комментариев
-var socialCommentCount = bigPicture.querySelector('.social__comment-count');
-socialCommentCount.classList.add('hidden');
-// блок загрузки новых комментариев
-var commentsLoader = bigPicture.querySelector('.comments-loader');
-commentsLoader.classList.add('hidden');
+// контейнер с фотографиями позади не должен прокручиваться при скролле:
+var BODY = document.body;
+BODY.classList.add('modal-open');
 
-// --------------контейнер с фотографиями позади не прокручивался при скролле ---------------
+// m4t2 Закрывает окно .big-picture и разрешает прокрутку фона:
+var closeBigPicture = function () {
+  BIG_PICTURE.classList.add('hidden');
+  BODY.classList.remove('modal-open');
+};
 
-var body = document.body;
-body.classList.add('modal-open');
+// m4t2 кнопка/событие закрытия .big-picture:
+var BIG_PICTURE_CANCEL = BIG_PICTURE.querySelector('.big-picture__cancel');
+BIG_PICTURE_CANCEL.addEventListener('click', function () {
+  closeBigPicture();
+});
+
+// m4t2----------поле для загрузки изображения .upload-file:---------------
+
+var KEY_ESCAPE = 'Escape';
+var KEY_ENTER = 'Enter';
+
+// поле выбора файла:
+var IMG_UPLOAD_INPUT = document.querySelector('.img-upload .img-upload__input');
+// закрытие поля выбора файла:
+var IMG_UPLOAD_CANCEL = document.querySelector('.img-upload .img-upload__cancel');
+// форма редактирования изображения:
+var IMG_UPLOAD_OVERLAY = document.querySelector('.img-upload .img-upload__overlay');
+
+var onUploadPressEscape = function (evt) {
+  if (evt.key === KEY_ESCAPE) {
+    closeUploadWindow();
+  }
+};
+
+// m4t2 Открывает .img-upload__input
+var showUploadWindow = function () {
+  IMG_UPLOAD_OVERLAY.classList.remove('hidden');
+  BODY.classList.add('modal-open');
+};
+
+// m4t2 Закрывает .img-upload__input
+var closeUploadWindow = function () {
+  IMG_UPLOAD_OVERLAY.classList.add('hidden');
+  BODY.classList.remove('modal-open');
+  IMG_UPLOAD_INPUT = '';
+
+  document.addEventListener('keydown', onUploadPressEscape);
+};
+
+IMG_UPLOAD_INPUT.addEventListener('change', function () {
+  showUploadWindow();
+});
+
+IMG_UPLOAD_CANCEL.addEventListener('click', function () {
+  closeUploadWindow();
+});
+
+IMG_UPLOAD_CANCEL.addEventListener('keydown', function (evt) {
+  if (evt.key === KEY_ENTER) {
+    closeUploadWindow();
+  }
+});
+
+// m4t2-------------Изменение глубины эффекта, накладываемого на изображение:--------
+
+var SLIDER = document.querySelector('.img-upload__effect-level');
+var SLIDER_VALUE = SLIDER.querySelector('.effect-level__value');
+var SLIDER_LINE = SLIDER.querySelector('.effect-level__line');
+var SLIDER_PIN = SLIDER.querySelector('.effect-level__pin');
+
+// рассчитывает эффект по положению pin относительно Line:
+var calculateRatio = function () {
+  // получаем центр ручки (разделив ширину на 2):
+  var pinCenter = SLIDER_PIN.offsetLeft / 2;
+  // теперь получаем сдвиг центра ручки от родителя (т.е. линии):
+  var pinOffsetCenterX = SLIDER_PIN.offsetLeft + pinCenter;
+  // получаем ширину самого слайдера (линии):
+  var lineWidth = SLIDER_LINE.offsetWidth;
+
+  // возвращает пропорцию, исходя из положения центра pin относительно Line:
+  return Math.floor(pinOffsetCenterX * 100 / lineWidth);
+};
+
+// пин слайдера меняет значение value:
+SLIDER_PIN.addEventListener('mouseup', function () {
+  SLIDER_VALUE.value = calculateRatio();
+});
+
+// m4t2-------------Проверка хэштегов на валидацию:--------
+
+var IMG_UPLOAD_FORM = document.querySelector('.img-upload__form');
+var HASHTAGS_INPUT = IMG_UPLOAD_FORM.querySelector('.text__hashtags');
+
+HASHTAGS_INPUT.addEventListener('invalid', function () {
+  if (HASHTAGS_INPUT.validity.tooShort) {
+    HASHTAGS_INPUT.setCustomValidity('Хэштег должен состоять минимум из двух символов');
+  } else if (HASHTAGS_INPUT.validity.tooLong) {
+    HASHTAGS_INPUT.setCustomValidity('Длина хэштега не должна превышать 50-и символов');
+  } else if (HASHTAGS_INPUT.validity.valueMissing) {
+    HASHTAGS_INPUT.setCustomValidity('Обязательное поле');
+  } else if (HASHTAGS_INPUT.validity.patternMismatch) {
+    HASHTAGS_INPUT.setCustomValidity('Хэштег должен соответствовать шаблону (# за которым следуют любые символы)');
+  } else {
+    HASHTAGS_INPUT.setCustomValidity('');
+  }
+});

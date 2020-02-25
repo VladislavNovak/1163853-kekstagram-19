@@ -283,21 +283,74 @@ SLIDER_PIN.addEventListener('mouseup', function () {
   SLIDER_VALUE.value = calculateRatio();
 });
 
+// m4t2-------------Наложение эффекта на изображение:--------
+
+// var IMG_UPLOAD_EFFECTS = document.querySelector('.img-upload__effects');
+// var EFFECTS_RADIO = IMG_UPLOAD_EFFECTS.querySelector('.effects__radio');
+
 // m4t2-------------Проверка хэштегов на валидацию:--------
 
 var IMG_UPLOAD_FORM = document.querySelector('.img-upload__form');
 var HASHTAGS_INPUT = IMG_UPLOAD_FORM.querySelector('.text__hashtags');
+var IMG_UPLOAD_SUBMIT = IMG_UPLOAD_FORM.querySelector('.img-upload__submit');
+var stopSubmit = false;
 
-HASHTAGS_INPUT.addEventListener('invalid', function () {
-  if (HASHTAGS_INPUT.validity.tooShort) {
-    HASHTAGS_INPUT.setCustomValidity('Хэштег должен состоять минимум из двух символов');
-  } else if (HASHTAGS_INPUT.validity.tooLong) {
-    HASHTAGS_INPUT.setCustomValidity('Длина хэштега не должна превышать 50-и символов');
-  } else if (HASHTAGS_INPUT.validity.valueMissing) {
-    HASHTAGS_INPUT.setCustomValidity('Обязательное поле');
-  } else if (HASHTAGS_INPUT.validity.patternMismatch) {
-    HASHTAGS_INPUT.setCustomValidity('Хэштег должен соответствовать шаблону (# за которым следуют любые символы)');
-  } else {
-    HASHTAGS_INPUT.setCustomValidity('');
+// HASHTAGS_INPUT.addEventListener('invalid', function () {
+//   if (HASHTAGS_INPUT.validity.tooShort) {
+//     HASHTAGS_INPUT.setCustomValidity('Хэштег должен состоять минимум из двух символов');
+//   } else if (HASHTAGS_INPUT.validity.tooLong) {
+//     HASHTAGS_INPUT.setCustomValidity('Длина хэштега не должна превышать 50-и символов');
+//   } else if (HASHTAGS_INPUT.validity.valueMissing) {
+//     HASHTAGS_INPUT.setCustomValidity('Обязательное поле');
+//   } else if (HASHTAGS_INPUT.validity.patternMismatch) {
+//     HASHTAGS_INPUT.setCustomValidity('Хэштег должен соответствовать шаблону (# за которым следуют любые символы)');
+//   } else {
+//     HASHTAGS_INPUT.setCustomValidity('');
+//   }
+// });
+
+HASHTAGS_INPUT.addEventListener('input', function (evt) {
+  // вызывающий объект (this):
+  var target = evt.target;
+  target.setCustomValidity('');
+  stopSubmit = false;
+
+  // максимальное количество хэштегов:
+  var maxQuantityHashtags = 5;
+  // регулярные выражения:
+  var divider = /\s+/;
+  var pattern = /^#([A-Za-z0-9А-Яа-я]{2,19})$/;
+  // формируем массив, удаляя боковые пробелы, разделяя по внутренним пробелам:
+  var hashTags = target.value.trim().split(divider);
+
+  // проверяем количество введённых тегов:
+  if (hashTags.length > maxQuantityHashtags) {
+    stopSubmit = true;
+    target.setCustomValidity('Максимальное количество тегов: ' + maxQuantityHashtags + ' превышено');
+  }
+
+  // проверяем по соответствию шаблону ^#([A-Za-z0-9А-Яа-я]{2,19})$:
+  for (var i = 0; i < hashTags.length; i++) {
+    var hashTag = hashTags[i];
+    if (!pattern.test(hashTag)) {
+      stopSubmit = true;
+      target.setCustomValidity('Хэштег "' + hashTag + '" должен соответствовать шаблону: # за которым следуют любые не специальные символы (от двух до 20-и) без пробелов)');
+    }
+  }
+
+  // сортируем и проверяем совпадение хэштегов:
+  var sortedHashTags = hashTags.slice().sort();
+  for (var j = 0; j < hashTags.length - 1; j++) {
+    if (sortedHashTags[j] === sortedHashTags[j + 1]) {
+      stopSubmit = true;
+      target.setCustomValidity('Необходимо удалить хэштег ' + sortedHashTags[j] + ' т.к. он уже используется!');
+    }
+  }
+});
+
+IMG_UPLOAD_SUBMIT.addEventListener('submit', function (evt) {
+  if (stopSubmit) {
+    evt.preventDefault();
+    return;
   }
 });

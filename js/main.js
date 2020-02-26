@@ -142,58 +142,58 @@ createTileOfPhotos(collection);
 
 // --------------Полноэкранный показ изображения .big-picture--------------------
 
-var BIG_PICTURE = document.querySelector('.big-picture');
-var PATH_TO_PHOTO = BIG_PICTURE.querySelector('.big-picture__img').querySelector('img');
-var SOCIAL_LIKES = BIG_PICTURE.querySelector('.big-picture__social').querySelector('.social__likes');
-var SOCIAL_CAPTION = BIG_PICTURE.querySelector('.big-picture__social').querySelector('.social__caption');
-var COMMENTS_COUNT = BIG_PICTURE.querySelector('.social__comment-count').querySelector('.comments-count');
-var SOCIAL_COMMENTS_LIST = BIG_PICTURE.querySelector('.social__comments');
+var bigPicture = document.querySelector('.big-picture');
+var pathToPhoto = bigPicture.querySelector('.big-picture__img').querySelector('img');
+var socialLikes = bigPicture.querySelector('.big-picture__social').querySelector('.social__likes');
+var socialCaption = bigPicture.querySelector('.big-picture__social').querySelector('.social__caption');
+var commentsCount = bigPicture.querySelector('.social__comment-count').querySelector('.comments-count');
+var socialCommentsList = bigPicture.querySelector('.social__comments');
 
 // показываем блок .big-picture
-BIG_PICTURE.classList.remove('hidden');
+bigPicture.classList.remove('hidden');
 
 // Заполняет .big-picture комментариями:
 var processOneComment = function (comment) {
-  var SOCIAL_COMMENT = SOCIAL_COMMENTS_LIST.querySelector('.social__comment').cloneNode(true);
-  var AVATAR = SOCIAL_COMMENT.querySelector('.social__picture');
-  var text = SOCIAL_COMMENT.querySelector('.social__text');
+  var socialComment = socialCommentsList.querySelector('.social__comment').cloneNode(true);
+  var avatar = socialComment.querySelector('.social__picture');
+  var text = socialComment.querySelector('.social__text');
 
-  AVATAR.src = comment.avatar;
-  AVATAR.alt = comment.name;
+  avatar.src = comment.avatar;
+  avatar.alt = comment.name;
   text.textContent = comment.message;
 
-  return SOCIAL_COMMENT;
+  return socialComment;
 };
 
 // Заполняет .big-picture: url, описание, количество лайков:
 var drawBigPictures = function (item) {
   // контейнер. Сюда будем помещать объекты, чтобы избежать лишних перерисовок:
-  var FRAGMENT = document.createDocumentFragment();
+  var fragment = document.createDocumentFragment();
 
   // заполняем путь, лайки, кол.комментариев, описание:
-  PATH_TO_PHOTO.src = item.url;
-  SOCIAL_LIKES.textContent = item.likes;
-  SOCIAL_CAPTION.textContent = item.description;
-  COMMENTS_COUNT.textContent = item.comments.length;
+  pathToPhoto.src = item.url;
+  socialLikes.textContent = item.likes;
+  socialCaption.textContent = item.description;
+  commentsCount.textContent = item.comments.length;
 
   for (var i = 0; i < item.comments.length; i++) {
     var comment = processOneComment(item.comments[i]);
-    FRAGMENT.appendChild(comment);
+    fragment.appendChild(comment);
   }
 
   // удаляем дефолтные сообщения (в разметке):
-  SOCIAL_COMMENTS_LIST.innerHTML = '';
+  socialCommentsList.innerHTML = '';
   // добавляем новые:
-  SOCIAL_COMMENTS_LIST.appendChild(FRAGMENT);
+  socialCommentsList.appendChild(fragment);
 };
 
 drawBigPictures(collection[0]);
 
 // Скрываем блок счётчика комментариев и блок загрузки новых комментариев:
-var SOCIAL_COMMENT_COUNT = BIG_PICTURE.querySelector('.social__comment-count');
-var COMMENTS_LOADER = BIG_PICTURE.querySelector('.comments-loader');
-SOCIAL_COMMENT_COUNT.classList.add('hidden');
-COMMENTS_LOADER.classList.add('hidden');
+var socialcommentCount = bigPicture.querySelector('.social__comment-count');
+var commentsLoader = bigPicture.querySelector('.comments-loader');
+socialcommentCount.classList.add('hidden');
+commentsLoader.classList.add('hidden');
 
 // контейнер с фотографиями позади не должен прокручиваться при скролле:
 var BODY = document.body;
@@ -201,13 +201,14 @@ BODY.classList.add('modal-open');
 
 // m4t2 Закрывает окно .big-picture и разрешает прокрутку фона:
 var closeBigPicture = function () {
-  BIG_PICTURE.classList.add('hidden');
+  bigPicture.classList.add('hidden');
   BODY.classList.remove('modal-open');
 };
 
 // m4t2 кнопка/событие закрытия .big-picture:
-var BIG_PICTURE_CANCEL = BIG_PICTURE.querySelector('.big-picture__cancel');
-BIG_PICTURE_CANCEL.addEventListener('click', function () {
+var bigPictureCancel = bigPicture.querySelector('.big-picture__cancel');
+
+bigPictureCancel.addEventListener('click', function () {
   closeBigPicture();
 });
 
@@ -217,11 +218,11 @@ var KEY_ESCAPE = 'Escape';
 var KEY_ENTER = 'Enter';
 
 // поле выбора файла:
-var IMG_UPLOAD_INPUT = document.querySelector('.img-upload .img-upload__input');
+var imgUploadInput = document.querySelector('.img-upload .img-upload__input');
 // закрытие поля выбора файла:
-var IMG_UPLOAD_CANCEL = document.querySelector('.img-upload .img-upload__cancel');
+var imgUploadCancel = document.querySelector('.img-upload .img-upload__cancel');
 // форма редактирования изображения:
-var IMG_UPLOAD_OVERLAY = document.querySelector('.img-upload .img-upload__overlay');
+var imgUploadOverlay = document.querySelector('.img-upload .img-upload__overlay');
 
 var onUploadPressEscape = function (evt) {
   if (evt.key === KEY_ESCAPE) {
@@ -231,28 +232,28 @@ var onUploadPressEscape = function (evt) {
 
 // m4t2 Открывает .img-upload__input
 var showUploadWindow = function () {
-  IMG_UPLOAD_OVERLAY.classList.remove('hidden');
+  imgUploadOverlay.classList.remove('hidden');
   BODY.classList.add('modal-open');
 };
 
 // m4t2 Закрывает .img-upload__input
 var closeUploadWindow = function () {
-  IMG_UPLOAD_OVERLAY.classList.add('hidden');
+  imgUploadOverlay.classList.add('hidden');
   BODY.classList.remove('modal-open');
-  IMG_UPLOAD_INPUT = '';
+  imgUploadInput = '';
 
   document.addEventListener('keydown', onUploadPressEscape);
 };
 
-IMG_UPLOAD_INPUT.addEventListener('change', function () {
+imgUploadInput.addEventListener('change', function () {
   showUploadWindow();
 });
 
-IMG_UPLOAD_CANCEL.addEventListener('click', function () {
+imgUploadCancel.addEventListener('click', function () {
   closeUploadWindow();
 });
 
-IMG_UPLOAD_CANCEL.addEventListener('keydown', function (evt) {
+imgUploadCancel.addEventListener('keydown', function (evt) {
   if (evt.key === KEY_ENTER) {
     closeUploadWindow();
   }
@@ -260,63 +261,78 @@ IMG_UPLOAD_CANCEL.addEventListener('keydown', function (evt) {
 
 // m4t2-------------Изменение глубины эффекта, накладываемого на изображение:--------
 
-var SLIDER = document.querySelector('.img-upload__effect-level');
-var SLIDER_VALUE = SLIDER.querySelector('.effect-level__value');
-var SLIDER_LINE = SLIDER.querySelector('.effect-level__line');
-var SLIDER_PIN = SLIDER.querySelector('.effect-level__pin');
+var slider = document.querySelector('.img-upload__effect-level');
+var sliderValue = slider.querySelector('.effect-level__value');
+var sliderLine = slider.querySelector('.effect-level__line');
+var sliderPin = slider.querySelector('.effect-level__pin');
 
 // рассчитывает эффект по положению pin относительно Line:
 var calculateRatio = function () {
   // получаем центр ручки (разделив ширину на 2):
-  var pinCenter = SLIDER_PIN.offsetLeft / 2;
+  var pinCenter = sliderPin.offsetLeft / 2;
   // теперь получаем сдвиг центра ручки от родителя (т.е. линии):
-  var pinOffsetCenterX = SLIDER_PIN.offsetLeft + pinCenter;
+  var pinOffsetCenterX = sliderPin.offsetLeft + pinCenter;
   // получаем ширину самого слайдера (линии):
-  var lineWidth = SLIDER_LINE.offsetWidth;
+  var lineWidth = sliderLine.offsetWidth;
 
   // возвращает пропорцию, исходя из положения центра pin относительно Line:
   return Math.floor(pinOffsetCenterX * 100 / lineWidth);
 };
 
 // пин слайдера меняет значение value:
-SLIDER_PIN.addEventListener('mouseup', function () {
-  SLIDER_VALUE.value = calculateRatio();
+sliderPin.addEventListener('mouseup', function () {
+  sliderValue.value = calculateRatio();
 });
 
 // m4t2-------------Наложение эффекта на изображение:--------
 
-// var IMG_UPLOAD_EFFECTS = document.querySelector('.img-upload__effects');
-// var EFFECTS_RADIO = IMG_UPLOAD_EFFECTS.querySelector('.effects__radio');
+var uploadForm = document.querySelector('.img-upload__form');
+var imgUploadPreview = uploadForm.querySelector('.img-upload__preview').querySelector('img');
+var radios = uploadForm.querySelectorAll('.effects__radio');
+// первый радиобаттон. Нужен, чтобы изначально отключить слайдер
+var ORIGIN = 0;
+
+if (radios[ORIGIN].checked) {
+  slider.classList.add('hidden');
+}
+
+// если радиобаттон isChecked, то...
+var onRadioClick = function (evt) {
+  if (evt.target.checked) {
+    // обнуляем уже добавленные классы;
+    imgUploadPreview.className = '';
+    // добавляем картинке класс (составляем из названия в CSS и радиобаттон.value):
+    imgUploadPreview.classList.add('effects__preview--' + evt.target.value);
+    // при переключении эффектов, уровень насыщенности сбрасывается до начального значения (100%):
+    sliderValue.value = 100;
+    // если выбран радиобаттон ORIGIN, то слайдер прячется
+    if (imgUploadPreview.classList.contains('effects__preview--none')) {
+      slider.classList.add('hidden');
+    } else {
+      slider.classList.remove('hidden');
+    }
+  }
+};
+
+// обрабатывает клик на каждом радиобаттоне .effects__radio:
+for (var a = 0; a < radios.length; a++) {
+  radios[a].addEventListener('click', onRadioClick);
+}
 
 // m4t2-------------Проверка хэштегов на валидацию:--------
 
-var IMG_UPLOAD_FORM = document.querySelector('.img-upload__form');
-var HASHTAGS_INPUT = IMG_UPLOAD_FORM.querySelector('.text__hashtags');
-var IMG_UPLOAD_SUBMIT = IMG_UPLOAD_FORM.querySelector('.img-upload__submit');
+var hashtagsInput = uploadForm.querySelector('.text__hashtags');
+var imgUploadSubmit = uploadForm.querySelector('.img-upload__submit');
+// максимальное количество хэштегов:
+var MAX_QUANTITY_HASHTAGS = 5;
 var stopSubmit = false;
 
-// HASHTAGS_INPUT.addEventListener('invalid', function () {
-//   if (HASHTAGS_INPUT.validity.tooShort) {
-//     HASHTAGS_INPUT.setCustomValidity('Хэштег должен состоять минимум из двух символов');
-//   } else if (HASHTAGS_INPUT.validity.tooLong) {
-//     HASHTAGS_INPUT.setCustomValidity('Длина хэштега не должна превышать 50-и символов');
-//   } else if (HASHTAGS_INPUT.validity.valueMissing) {
-//     HASHTAGS_INPUT.setCustomValidity('Обязательное поле');
-//   } else if (HASHTAGS_INPUT.validity.patternMismatch) {
-//     HASHTAGS_INPUT.setCustomValidity('Хэштег должен соответствовать шаблону (# за которым следуют любые символы)');
-//   } else {
-//     HASHTAGS_INPUT.setCustomValidity('');
-//   }
-// });
-
-HASHTAGS_INPUT.addEventListener('input', function (evt) {
+hashtagsInput.addEventListener('input', function (evt) {
   // вызывающий объект (this):
   var target = evt.target;
   target.setCustomValidity('');
   stopSubmit = false;
 
-  // максимальное количество хэштегов:
-  var maxQuantityHashtags = 5;
   // регулярные выражения:
   var divider = /\s+/;
   var pattern = /^#([A-Za-z0-9А-Яа-я]{2,19})$/;
@@ -324,9 +340,9 @@ HASHTAGS_INPUT.addEventListener('input', function (evt) {
   var hashTags = target.value.trim().split(divider);
 
   // проверяем количество введённых тегов:
-  if (hashTags.length > maxQuantityHashtags) {
+  if (hashTags.length > MAX_QUANTITY_HASHTAGS) {
     stopSubmit = true;
-    target.setCustomValidity('Максимальное количество тегов: ' + maxQuantityHashtags + ' превышено');
+    target.setCustomValidity('Максимальное количество тегов: ' + MAX_QUANTITY_HASHTAGS + ' превышено');
   }
 
   // проверяем по соответствию шаблону ^#([A-Za-z0-9А-Яа-я]{2,19})$:
@@ -348,7 +364,7 @@ HASHTAGS_INPUT.addEventListener('input', function (evt) {
   }
 });
 
-IMG_UPLOAD_SUBMIT.addEventListener('submit', function (evt) {
+imgUploadSubmit.addEventListener('submit', function (evt) {
   if (stopSubmit) {
     evt.preventDefault();
     return;

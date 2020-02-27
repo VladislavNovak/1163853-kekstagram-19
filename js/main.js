@@ -60,8 +60,7 @@ var getRandomItem = function (array) {
   return item;
 };
 
-// ------------Склейка нескольких посланий--------------------------
-
+// Склейка нескольких посланий:
 var collectComments = function (messagesToProcess) {
   // для того, чтобы склеенные сообщения были уникальными:
   // 1. getRandomItem возвращает random элемент массива MESSAGES
@@ -75,9 +74,7 @@ var collectComments = function (messagesToProcess) {
   return message;
 };
 
-// ------------Создаёт массив комментариев--------------------------
-
-// возвращает массив комментариев (с аватаркой, посланием, именем комментатора)
+// Возвращает массив комментариев (с аватаркой, посланием, именем комментатора)
 var addNewMessage = function (messages, names, totalUsers) {
   var comments = [];
 
@@ -92,9 +89,7 @@ var addNewMessage = function (messages, names, totalUsers) {
   return comments;
 };
 
-// ------------Создает коллекцию из 25 объектов--------------------------
-
-// (с путём до фото, описанием, лайками и группой комментариев)
+// Создает коллекцию из 25 объектов (с путём до фото, описанием, лайками и группой комментариев):
 var getCollection = function (arrayToProcess, totalPhotos, messages, names, descriptions, totalUsers) {
 
   for (var i = 0; i < totalPhotos; i++) {
@@ -109,14 +104,10 @@ var getCollection = function (arrayToProcess, totalPhotos, messages, names, desc
   return arrayToProcess;
 };
 
-// ------------Получаем массив из 25 объектов--------------------------
-
+// Получаем массив из 25 объектов:
 var collection = getCollection(arrayPhotos, TOTAL_PHOTOS, MESSAGES, NAMES, DESCRIPTIONS, TOTAL_USERS);
 
-
-// ---------------Обрабатываем шаблон------------------------------
-
-// передаём одно описание к фотографии
+// Обрабатываем шаблон. Передаём одно описание к фотографии:
 var processOnePhoto = function (photo) {
   // находим шаблон template picture...
   var pictureFromTemplate = document.querySelector('#picture').content.querySelector('.picture');
@@ -130,8 +121,7 @@ var processOnePhoto = function (photo) {
   return picture;
 };
 
-// --------------В цикле создаём похожие объекты--------------------
-
+// В цикле создаёт похожие объекты:
 var createTileOfPhotos = function (photos) {
   // контейнер. Сюда будем помещать объекты, чтобы избежать лишних перерисовок
   var fragment = document.createDocumentFragment();
@@ -147,12 +137,10 @@ var createTileOfPhotos = function (photos) {
   picturesBlock.appendChild(fragment);
 };
 
-// --------------Отрисовывает фотографии в .pictures--------------------
-
+// Отрисовывает фотографии в .pictures:
 createTileOfPhotos(collection);
 
-
-// --------------Переменные к .big-picture--------------------
+// --------------Полноэкранный показ изображения .big-picture--------------------
 
 var bigPicture = document.querySelector('.big-picture');
 var pathToPhoto = bigPicture.querySelector('.big-picture__img').querySelector('img');
@@ -164,8 +152,7 @@ var socialCommentsList = bigPicture.querySelector('.social__comments');
 // показываем блок .big-picture
 bigPicture.classList.remove('hidden');
 
-// --------------Заполняет .bigPicture комметнариями--------------------
-
+// Заполняет .big-picture комментариями:
 var processOneComment = function (comment) {
   var socialComment = socialCommentsList.querySelector('.social__comment').cloneNode(true);
   var avatar = socialComment.querySelector('.social__picture');
@@ -178,8 +165,7 @@ var processOneComment = function (comment) {
   return socialComment;
 };
 
-// --------------Заполняет .bigPicture: url, описание, количество лайков---------------
-
+// Заполняет .big-picture: url, описание, количество лайков:
 var drawBigPictures = function (item) {
   // контейнер. Сюда будем помещать объекты, чтобы избежать лишних перерисовок:
   var fragment = document.createDocumentFragment();
@@ -203,16 +189,184 @@ var drawBigPictures = function (item) {
 
 drawBigPictures(collection[0]);
 
-// --------------Скрываем:---------------
-
-// блок счётчика комментариев
-var socialCommentCount = bigPicture.querySelector('.social__comment-count');
-socialCommentCount.classList.add('hidden');
-// блок загрузки новых комментариев
+// Скрываем блок счётчика комментариев и блок загрузки новых комментариев:
+var socialcommentCount = bigPicture.querySelector('.social__comment-count');
 var commentsLoader = bigPicture.querySelector('.comments-loader');
+socialcommentCount.classList.add('hidden');
 commentsLoader.classList.add('hidden');
 
-// --------------контейнер с фотографиями позади не прокручивался при скролле ---------------
+// контейнер с фотографиями позади не должен прокручиваться при скролле:
+var BODY = document.body;
+BODY.classList.add('modal-open');
 
-var body = document.body;
-body.classList.add('modal-open');
+// m4t2 Закрывает окно .big-picture и разрешает прокрутку фона:
+var closeBigPicture = function () {
+  bigPicture.classList.add('hidden');
+  BODY.classList.remove('modal-open');
+};
+
+// m4t2 кнопка/событие закрытия .big-picture:
+var bigPictureCancel = bigPicture.querySelector('.big-picture__cancel');
+
+bigPictureCancel.addEventListener('click', function () {
+  closeBigPicture();
+});
+
+// m4t2----------поле для загрузки изображения .upload-file:---------------
+
+var KEY_ESCAPE = 'Escape';
+var KEY_ENTER = 'Enter';
+
+// поле выбора файла:
+var imgUploadInput = document.querySelector('.img-upload .img-upload__input');
+// закрытие поля выбора файла:
+var imgUploadCancel = document.querySelector('.img-upload .img-upload__cancel');
+// форма редактирования изображения:
+var imgUploadOverlay = document.querySelector('.img-upload .img-upload__overlay');
+
+var onUploadPressEscape = function (evt) {
+  if (evt.key === KEY_ESCAPE) {
+    closeUploadWindow();
+  }
+};
+
+// m4t2 Открывает .img-upload__input
+var showUploadWindow = function () {
+  imgUploadOverlay.classList.remove('hidden');
+  BODY.classList.add('modal-open');
+};
+
+// m4t2 Закрывает .img-upload__input
+var closeUploadWindow = function () {
+  imgUploadOverlay.classList.add('hidden');
+  BODY.classList.remove('modal-open');
+  imgUploadInput = '';
+
+  document.addEventListener('keydown', onUploadPressEscape);
+};
+
+imgUploadInput.addEventListener('change', function () {
+  showUploadWindow();
+});
+
+imgUploadCancel.addEventListener('click', function () {
+  closeUploadWindow();
+});
+
+imgUploadCancel.addEventListener('keydown', function (evt) {
+  if (evt.key === KEY_ENTER) {
+    closeUploadWindow();
+  }
+});
+
+// m4t2-------------Изменение глубины эффекта, накладываемого на изображение:--------
+
+var slider = document.querySelector('.img-upload__effect-level');
+var sliderValue = slider.querySelector('.effect-level__value');
+var sliderLine = slider.querySelector('.effect-level__line');
+var sliderPin = slider.querySelector('.effect-level__pin');
+
+// рассчитывает эффект по положению pin относительно Line:
+var calculateRatio = function () {
+  // получаем центр ручки (разделив ширину на 2):
+  var pinCenter = sliderPin.offsetLeft / 2;
+  // теперь получаем сдвиг центра ручки от родителя (т.е. линии):
+  var pinOffsetCenterX = sliderPin.offsetLeft + pinCenter;
+  // получаем ширину самого слайдера (линии):
+  var lineWidth = sliderLine.offsetWidth;
+
+  // возвращает пропорцию, исходя из положения центра pin относительно Line:
+  return Math.floor(pinOffsetCenterX * 100 / lineWidth);
+};
+
+// пин слайдера меняет значение value:
+sliderPin.addEventListener('mouseup', function () {
+  sliderValue.value = calculateRatio();
+});
+
+// m4t2-------------Наложение эффекта на изображение:--------
+
+var uploadForm = document.querySelector('.img-upload__form');
+var imgUploadPreview = uploadForm.querySelector('.img-upload__preview').querySelector('img');
+var radios = uploadForm.querySelectorAll('.effects__radio');
+// первый радиобаттон. Нужен, чтобы изначально отключить слайдер
+var ORIGIN = 0;
+
+if (radios[ORIGIN].checked) {
+  slider.classList.add('hidden');
+}
+
+// если радиобаттон isChecked, то...
+var onRadioClick = function (evt) {
+  if (evt.target.checked) {
+    // обнуляем уже добавленные классы;
+    imgUploadPreview.className = '';
+    // добавляем картинке класс (составляем из названия в CSS и радиобаттон.value):
+    imgUploadPreview.classList.add('effects__preview--' + evt.target.value);
+    // при переключении эффектов, уровень насыщенности сбрасывается до начального значения (100%):
+    sliderValue.value = 100;
+    // если выбран радиобаттон ORIGIN, то слайдер прячется
+    if (imgUploadPreview.classList.contains('effects__preview--none')) {
+      slider.classList.add('hidden');
+    } else {
+      slider.classList.remove('hidden');
+    }
+  }
+};
+
+// обрабатывает клик на каждом радиобаттоне .effects__radio:
+for (var a = 0; a < radios.length; a++) {
+  radios[a].addEventListener('click', onRadioClick);
+}
+
+// m4t2-------------Проверка хэштегов на валидацию:--------
+
+var hashtagsInput = uploadForm.querySelector('.text__hashtags');
+var imgUploadSubmit = uploadForm.querySelector('.img-upload__submit');
+// максимальное количество хэштегов:
+var MAX_QUANTITY_HASHTAGS = 5;
+var stopSubmit = false;
+
+hashtagsInput.addEventListener('input', function (evt) {
+  // вызывающий объект (this):
+  var target = evt.target;
+  target.setCustomValidity('');
+  stopSubmit = false;
+
+  // регулярные выражения:
+  var divider = /\s+/;
+  var pattern = /^#([A-Za-z0-9А-Яа-я]{2,19})$/;
+  // формируем массив, удаляя боковые пробелы, разделяя по внутренним пробелам:
+  var hashTags = target.value.trim().split(divider);
+
+  // проверяем количество введённых тегов:
+  if (hashTags.length > MAX_QUANTITY_HASHTAGS) {
+    stopSubmit = true;
+    target.setCustomValidity('Максимальное количество тегов: ' + MAX_QUANTITY_HASHTAGS + ' превышено');
+  }
+
+  // проверяем по соответствию шаблону ^#([A-Za-z0-9А-Яа-я]{2,19})$:
+  for (var i = 0; i < hashTags.length; i++) {
+    var hashTag = hashTags[i];
+    if (!pattern.test(hashTag)) {
+      stopSubmit = true;
+      target.setCustomValidity('Хэштег "' + hashTag + '" должен соответствовать шаблону: # за которым следуют любые не специальные символы (от двух до 20-и) без пробелов)');
+    }
+  }
+
+  // сортируем и проверяем совпадение хэштегов:
+  var sortedHashTags = hashTags.slice().sort();
+  for (var j = 0; j < hashTags.length - 1; j++) {
+    if (sortedHashTags[j] === sortedHashTags[j + 1]) {
+      stopSubmit = true;
+      target.setCustomValidity('Необходимо удалить хэштег ' + sortedHashTags[j] + ' т.к. он уже используется!');
+    }
+  }
+});
+
+imgUploadSubmit.addEventListener('submit', function (evt) {
+  if (stopSubmit) {
+    evt.preventDefault();
+    return;
+  }
+});

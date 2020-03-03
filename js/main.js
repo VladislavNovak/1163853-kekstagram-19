@@ -46,7 +46,8 @@ var QUANTITY_MAXIMUM_COMMENTS = 7;
 var MINIMUM_LIKES = 15;
 var MAXIMUM_LIKES = 200;
 
-// ------------Обслуживающие функции--------------------------
+// ------------------------------------------------------------------------------------
+// ------------Обслуживающие функции---------------------------------------------------
 
 var getRandNumber = function (minimum, maximum) {
   var rand = minimum + Math.random() * (maximum - minimum);
@@ -61,17 +62,15 @@ var getRandomItem = function (array) {
 };
 
 // Склейка нескольких посланий:
-var collectComments = function (messagesToProcess) {
-  // для того, чтобы склеенные сообщения были уникальными:
-  // 1. getRandomItem возвращает random элемент массива MESSAGES
-  // 2. в MESSAGES посредством splice удаляется найденный random-элемент
-  // 3. и он же методом splice возвращается
-  var message = messagesToProcess.splice(getRandomItem(messagesToProcess), 1);
-  if (getRandNumber(0, 2)) {
-    message += (' ' + getRandomItem(messagesToProcess));
+var collectComments = function (messages) {
+  var message1 = getRandomItem(messages);
+  var message2 = getRandomItem(messages);
+  while (message1 === message2) {
+    message2 = getRandomItem(messages);
   }
+  message1 += ' ' + message2;
 
-  return message;
+  return message1;
 };
 
 // Возвращает массив комментариев (с аватаркой, посланием, именем комментатора)
@@ -140,17 +139,23 @@ var createTileOfPhotos = function (photos) {
 // Отрисовывает фотографии в .pictures:
 createTileOfPhotos(collection);
 
-// --------------Полноэкранный показ изображения .big-picture--------------------
+// ------------------------------------------------------------------------------------
+// --------------Полноэкранный показ изображения .big-picture--------------------------
 
 var bigPicture = document.querySelector('.big-picture');
+// m4t2 кнопка/событие закрытия .big-picture:
+var bigPictureCancel = bigPicture.querySelector('.big-picture__cancel');
 var pathToPhoto = bigPicture.querySelector('.big-picture__img').querySelector('img');
 var socialLikes = bigPicture.querySelector('.big-picture__social').querySelector('.social__likes');
 var socialCaption = bigPicture.querySelector('.big-picture__social').querySelector('.social__caption');
 var commentsCount = bigPicture.querySelector('.social__comment-count').querySelector('.comments-count');
 var socialCommentsList = bigPicture.querySelector('.social__comments');
+var inputSocialFooterText = bigPicture.querySelector('.social__footer-text');
 
-// показываем блок .big-picture
-bigPicture.classList.remove('hidden');
+var body = document.body;
+var KEY_ESCAPE = 'Escape';
+var KEY_ENTER = 'Enter';
+var isFocusInputSocialFooterText = false;
 
 // Заполняет .big-picture комментариями:
 var processOneComment = function (comment) {
@@ -185,37 +190,69 @@ var drawBigPictures = function (item) {
   socialCommentsList.innerHTML = '';
   // добавляем новые:
   socialCommentsList.appendChild(fragment);
+
+  // показываем блок .big-picture
+  bigPicture.classList.remove('hidden');
+
+  // Скрываем блок счётчика комментариев и блок загрузки новых комментариев:
+  var socialcommentCount = bigPicture.querySelector('.social__comment-count');
+  var commentsLoader = bigPicture.querySelector('.comments-loader');
+  socialcommentCount.classList.add('hidden');
+  commentsLoader.classList.add('hidden');
+
+  // контейнер с фотографиями позади не должен прокручиваться при скролле:
+  body.classList.add('modal-open');
+
+  var onBigPicturePressEscape = function (evt) {
+    if (evt.key === KEY_ESCAPE && !isFocusInputSocialFooterText) {
+      closeBigPicture();
+    }
+  };
+
+  document.addEventListener('keydown', onBigPicturePressEscape);
+
+  // m4t2 Закрывает окно .big-picture и разрешает прокрутку фона:
+  var closeBigPicture = function () {
+    bigPicture.classList.add('hidden');
+    body.classList.remove('modal-open');
+  };
+
+  bigPictureCancel.addEventListener('click', function () {
+    closeBigPicture();
+  });
+
+  bigPictureCancel.addEventListener('keydown', function (evt) {
+    if (evt.key === KEY_ENTER) {
+      closeBigPicture();
+    }
+  });
+
+  // m4t3 на инпуте стоит фокус
+  inputSocialFooterText.addEventListener('focus', function () {
+    isFocusInputSocialFooterText = true;
+  });
+
+  // m4t3 с инпута фокус снят
+  inputSocialFooterText.addEventListener('blur', function () {
+    isFocusInputSocialFooterText = false;
+  });
 };
 
-drawBigPictures(collection[0]);
+// -----------------------------------------------------------------------------------------
+// m4t3----------отрисовывает в .bigPicture указаннуюю фотографию:--------------------------
 
-// Скрываем блок счётчика комментариев и блок загрузки новых комментариев:
-var socialcommentCount = bigPicture.querySelector('.social__comment-count');
-var commentsLoader = bigPicture.querySelector('.comments-loader');
-socialcommentCount.classList.add('hidden');
-commentsLoader.classList.add('hidden');
+// получаем все картинки .picture:
+var smallPictures = document.querySelectorAll('.picture');
 
-// контейнер с фотографиями позади не должен прокручиваться при скролле:
-var BODY = document.body;
-BODY.classList.add('modal-open');
+// обрабатываем клик по картинке .picture:
+for (var t = 0; t < smallPictures.length; t++) {
+  smallPictures[t].addEventListener('click', function (item) {
+    drawBigPictures(item);
+  }.bind(null, collection[t]));
+}
 
-// m4t2 Закрывает окно .big-picture и разрешает прокрутку фона:
-var closeBigPicture = function () {
-  bigPicture.classList.add('hidden');
-  BODY.classList.remove('modal-open');
-};
-
-// m4t2 кнопка/событие закрытия .big-picture:
-var bigPictureCancel = bigPicture.querySelector('.big-picture__cancel');
-
-bigPictureCancel.addEventListener('click', function () {
-  closeBigPicture();
-});
-
-// m4t2----------поле для загрузки изображения .upload-file:---------------
-
-var KEY_ESCAPE = 'Escape';
-var KEY_ENTER = 'Enter';
+// ------------------------------------------------------------------------------------
+// m4t2----------поле для загрузки изображения .upload-file:---------------------------
 
 // поле выбора файла:
 var imgUploadInput = document.querySelector('.img-upload .img-upload__input');
@@ -230,36 +267,39 @@ var onUploadPressEscape = function (evt) {
   }
 };
 
+document.addEventListener('keydown', onUploadPressEscape);
+
 // m4t2 Открывает .img-upload__input
 var showUploadWindow = function () {
   imgUploadOverlay.classList.remove('hidden');
-  BODY.classList.add('modal-open');
+  body.classList.add('modal-open');
 };
 
 // m4t2 Закрывает .img-upload__input
 var closeUploadWindow = function () {
   imgUploadOverlay.classList.add('hidden');
-  BODY.classList.remove('modal-open');
+  body.classList.remove('modal-open');
   imgUploadInput = '';
-
-  document.addEventListener('keydown', onUploadPressEscape);
 };
 
 imgUploadInput.addEventListener('change', function () {
   showUploadWindow();
 });
 
+// закрытие через click:
 imgUploadCancel.addEventListener('click', function () {
   closeUploadWindow();
 });
 
+// если фокус на .img-upload__cancel, закрытие возможно через enter:
 imgUploadCancel.addEventListener('keydown', function (evt) {
   if (evt.key === KEY_ENTER) {
     closeUploadWindow();
   }
 });
 
-// m4t2-------------Изменение глубины эффекта, накладываемого на изображение:--------
+// ------------------------------------------------------------------------------------
+// m4t2-------------Изменение глубины эффекта, накладываемого на изображение:----------
 
 var slider = document.querySelector('.img-upload__effect-level');
 var sliderValue = slider.querySelector('.effect-level__value');
@@ -284,7 +324,8 @@ sliderPin.addEventListener('mouseup', function () {
   sliderValue.value = calculateRatio();
 });
 
-// m4t2-------------Наложение эффекта на изображение:--------
+// ------------------------------------------------------------------------------------
+// m4t2-------------Наложение эффекта на изображение:----------------------------------
 
 var uploadForm = document.querySelector('.img-upload__form');
 var imgUploadPreview = uploadForm.querySelector('.img-upload__preview').querySelector('img');
@@ -319,10 +360,12 @@ for (var a = 0; a < radios.length; a++) {
   radios[a].addEventListener('click', onRadioClick);
 }
 
-// m4t2-------------Проверка хэштегов на валидацию:--------
+// ------------------------------------------------------------------------------------
+// m4t2-------------Проверка хэштегов на валидацию:------------------------------------
 
 var hashtagsInput = uploadForm.querySelector('.text__hashtags');
 var imgUploadSubmit = uploadForm.querySelector('.img-upload__submit');
+var textDescription = uploadForm.querySelector('.text__description');
 // максимальное количество хэштегов:
 var MAX_QUANTITY_HASHTAGS = 5;
 var stopSubmit = false;
@@ -364,9 +407,19 @@ hashtagsInput.addEventListener('input', function (evt) {
   }
 });
 
+// если хотя бы одна проверка не пройдена, прервать отправление формы:
 imgUploadSubmit.addEventListener('submit', function (evt) {
   if (stopSubmit) {
     evt.preventDefault();
     return;
+  }
+});
+
+// длина комментария не может составлять больше 140 символов:
+textDescription.addEventListener('invalid', function () {
+  if (textDescription.validity.tooLong) {
+    textDescription.setCustomValidity('Длина комментария не может составлять больше 140 символов!');
+  } else {
+    textDescription.setCustomValidity('');
   }
 });

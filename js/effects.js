@@ -79,15 +79,14 @@
       // добавляем картинке класс (составляем из названия в CSS и радиобаттон.value):
       imgUploadPreview.classList.add('effects__preview--' + evt.target.value);
 
-      // получаем ширину шкалы (линии):
-      var scaleWidth = scale.offsetWidth;
-      setPosition(scaleWidth, scaleWidth);
-
       // если выбран радиобаттон ORIGIN, то слайдер прячется
       if (imgUploadPreview.classList.contains('effects__preview--none')) {
         slider.classList.add('hidden');
       } else {
         slider.classList.remove('hidden');
+        // получаем ширину шкалы (линии):
+        var scaleWidth = scale.offsetWidth;
+        setPosition(scaleWidth, scaleWidth);
       }
     }
   };

@@ -3,6 +3,12 @@
 'use strict';
 
 (function () {
+  // шаг изменения изображения preview:
+  var STEP = 25;
+  // нижняя/верхняя граница изменения масштаба:
+  var BOTTOM_LIMIT = 25;
+  var TOP_LIMIT = 100;
+
   // блок формы с предварительным просмотром:
   var uploadForm = document.querySelector('.img-upload__form');
   // блок масштаба:
@@ -12,11 +18,6 @@
   var counter = zoomOut.querySelector('.scale__control--value');
   // предварительный просмотр:
   var preview = uploadForm.querySelector('.img-upload__preview').querySelector('img');
-  // шаг изменения изображения preview:
-  var STEP = 25;
-  // нижняя/верхняя граница изменения масштаба:
-  var BOTTOM_LIMIT = 25;
-  var TOP_LIMIT = 100;
 
   // ---------------------------------------------
 

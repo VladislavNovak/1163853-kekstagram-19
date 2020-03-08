@@ -3,6 +3,9 @@
 'use strict';
 
 (function () {
+  // первый радиобаттон. Нужен, чтобы изначально отключить слайдер
+  var ORIGIN = 0;
+
   var slider = document.querySelector('.img-upload__effect-level');
   var sliderValue = slider.querySelector('.effect-level__value');
   var lineOfRange = slider.querySelector('.effect-level__line');
@@ -93,8 +96,6 @@
   });
 
   // -------------Наложение эффекта на изображение:-------------------------
-  // первый радиобаттон. Нужен, чтобы изначально отключить слайдер
-  var ORIGIN = 0;
 
   if (radios[ORIGIN].checked) {
     slider.classList.add('hidden');

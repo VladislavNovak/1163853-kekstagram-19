@@ -5,7 +5,7 @@
 (function () {
   var slider = document.querySelector('.img-upload__effect-level');
   var sliderValue = slider.querySelector('.effect-level__value');
-  var scale = slider.querySelector('.effect-level__line');
+  var lineOfRange = slider.querySelector('.effect-level__line');
   var pin = slider.querySelector('.effect-level__pin');
   var yellowLine = slider.querySelector('.effect-level__depth');
 
@@ -54,8 +54,8 @@
     // предотвратить запуск выделения (действие браузера):
     evtDown.preventDefault();
     // получаем ширину шкалы (линии):
-    var scaleWidth = scale.offsetWidth;
-    // координаты первоначальной точки (потом - будем обновлять):
+    var lineOfRangeWidth = lineOfRange.offsetWidth;
+    // координаты первоначальной точки (здесь*** - будем обновлять):
     var start = evtDown.clientX;
 
     var onMouseMove = function (evtMove) {
@@ -68,17 +68,17 @@
       // курсор вышел из слайдера - оставить бегунок в его границах:
       if (position < 0) {
         position = 0;
-      } else if (position > scaleWidth) {
-        position = scaleWidth;
+      } else if (position > lineOfRangeWidth) {
+        position = lineOfRangeWidth;
       } else {
         // иначе => устанавливаем положение пина, инпут.value, размер жёлтой полоски:
-        setPosition(position, scaleWidth);
+        setPosition(position, lineOfRangeWidth);
         // получаем пропорцию и изменяем в соответствии с ним эффект:
-        var change = getRatio(position, scaleWidth);
+        var change = getRatio(position, lineOfRangeWidth);
         changeFilter(change);
       }
 
-      // обновляем обновляем стартовуюю точку:
+      // здесь*** обновляем стартовуюю точку:
       start = evtMove.clientX;
     };
 
@@ -91,7 +91,6 @@
     document.addEventListener('mousemove', onMouseMove);
     document.addEventListener('mouseup', onMouseUp);
   });
-
 
   // -------------Наложение эффекта на изображение:-------------------------
   // первый радиобаттон. Нужен, чтобы изначально отключить слайдер
@@ -115,11 +114,11 @@
       } else {
         slider.classList.remove('hidden');
         // получаем ширину шкалы (линии):
-        var scaleWidth = scale.offsetWidth;
+        var lineOfRangeWidth = lineOfRange.offsetWidth;
         // устанавливаем положение пина, инпут.value, размер жёлтой полоски:
-        setPosition(scaleWidth, scaleWidth);
+        setPosition(lineOfRangeWidth, lineOfRangeWidth);
         // получаем пропорцию и изменяем в соответствии с ним эффект:
-        var change = getRatio(scaleWidth, scaleWidth);
+        var change = getRatio(lineOfRangeWidth, lineOfRangeWidth);
         changeFilter(change);
       }
     }

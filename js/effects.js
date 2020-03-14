@@ -25,63 +25,66 @@
   // устанавливает положение пина, инпут.value, размер жёлтой полоски:
   var setPosition = function (value, width) {
     pin.style.left = value + 'px';
-
     var effect = getRatio(value, width);
-    // заполняем инпут:
+    // - заполняем инпут:
     sliderValue.value = effect;
-    // формируем длину жёлтой полоски левее пина:
+    // - формирует длину жёлтой полоски левее пина:
     yellowLine.style.width = effect + '%';
   };
 
   // в зависимости от пропорции - меняем эффект:
   var changeFilter = function (effect) {
     if (preview.classList.contains('effects__preview--chrome')) {
-      // Для эффекта «Хром» — filter: grayscale(0..1);
+      // - для эффекта «Хром» — filter: grayscale(0..1);
       preview.style.filter = 'grayscale(' + effect + '%)'; // * 0.1
     } else if (preview.classList.contains('effects__preview--sepia')) {
-      // Для эффекта «Сепия» — filter: sepia(0..1);
+      // - для эффекта «Сепия» — filter: sepia(0..1);
       preview.style.filter = 'sepia(' + effect + '%)'; // * 0.1
     } else if (preview.classList.contains('effects__preview--marvin')) {
-      // Для эффекта «Марвин» — filter: invert(0..100%);
+      // - для эффекта «Марвин» — filter: invert(0..100%);
       preview.style.filter = 'invert(' + effect + '%)';
     } else if (preview.classList.contains('effects__preview--phobos')) {
-      // Для эффекта «Фобос» — filter: blur(0..3px);
+      // - для эффекта «Фобос» — filter: blur(0..3px);
       preview.style.filter = 'blur(' + (effect * 3 / 100) + 'px)';
     } else if (preview.classList.contains('effects__preview--heat')) {
-      // Для эффекта «Зной» — filter: brightness(1..3);
+      // - для эффекта «Зной» — filter: brightness(1..3);
       preview.style.filter = 'brightness(' + (effect * 3 / 100) + ')';
     }
   };
 
+  // когда ЛКМ опущена:
   pin.addEventListener('mousedown', function (evtDown) {
-    // предотвратить запуск выделения (действие браузера):
+    // - предотвратить запуск выделения (действие браузера):
     evtDown.preventDefault();
-    // получаем ширину шкалы (линии):
+    // - получает ширину шкалы (линии):
     var lineOfRangeWidth = lineOfRange.offsetWidth;
-    // координаты первоначальной точки (здесь*** - будем обновлять):
+    // - получает координаты первоначальной точки (здесь*** - будем обновлять):
     var start = evtDown.clientX;
 
+    // когда ЛКМ перемещается:
     var onMouseMove = function (evtMove) {
       evtMove.preventDefault();
-      // в зависимости от направления, прибавляем/вычитаем единицу:
+      // - в зависимости от направления, прибавляет/вычитает единицу:
       var shift = start - evtMove.clientX;
-      // теперь же смещение (+/- 1) добавляем к текущему положению пина:
+      // - и смещение (+/- 1) добавляется к текущему положению пина:
       var position = pin.offsetLeft - shift;
 
-      // курсор вышел из слайдера - оставить бегунок в его границах:
+      // если курсор вышел из слайдера:
       if (position < 0) {
+        // - оставить бегунок в его границах:
         position = 0;
       } else if (position > lineOfRangeWidth) {
+        // в противном случае => получает ширину шкалы:
         position = lineOfRangeWidth;
       } else {
-        // иначе => устанавливаем положение пина, инпут.value, размер жёлтой полоски:
+        // в остальных случаях => устанавливаем положение пина, инпут.value, размер жёлтой полоски:
         setPosition(position, lineOfRangeWidth);
-        // получаем пропорцию и изменяем в соответствии с ним эффект:
+        // - получает пропорцию и изменяем в соответствии с ним эффект:
         var change = getRatio(position, lineOfRangeWidth);
         changeFilter(change);
       }
 
-      // здесь*** обновляем стартовуюю точку:
+      // здесь*** обновляем стартовую точку:
       start = evtMove.clientX;
     };
 
@@ -97,30 +100,48 @@
 
   // -------------Наложение эффекта на изображение:-------------------------
 
+  // скидываем всё до первоначальных настроек:
+  var resetToInitialSettings = function () {
+    // - получаем ширину шкалы (линии):
+    var lineOfRangeWidth = lineOfRange.offsetWidth;
+    // - устанавливаем положение пина, инпут.value, размер жёлтой полоски:
+    setPosition(lineOfRangeWidth, lineOfRangeWidth);
+    // - получаем пропорцию и изменяем в соответствии с ним эффект:
+    var change = getRatio(lineOfRangeWidth, lineOfRangeWidth);
+    changeFilter(change);
+  };
+
+  // при первом открытии окна:
   if (radios[ORIGIN].checked) {
+    // - прячем слайдер:
     slider.classList.add('hidden');
+    // - скидываем до первоначальных настроек:
+    resetToInitialSettings();
   }
 
-  // если радиобаттон isChecked, то...
-  var onRadioClick = function (evt) {
-    if (evt.target.checked) {
-      // обнуляем уже добавленные классы;
-      preview.className = '';
-      // добавляем картинке класс (составляем из названия в CSS и радиобаттон.value):
-      preview.classList.add('effects__preview--' + evt.target.value);
+  // понадобится при отправке формы:
+  var resetAll = function () {
+    // - переключим на первый радиобаттон:
+    radios[ORIGIN].checked = true;
+    // - скидываем всё до первоначальных настроек:
+    resetToInitialSettings();
+  };
 
-      // если выбран радиобаттон ORIGIN, то слайдер прячется
+  // при выборе радиобаттона:
+  var onRadioClick = function (evt) {
+    // если радиобаттон isChecked, то:
+    if (evt.target.checked) {
+      // - скидываем/обновляем уже добавленные классы;
+      preview.className = '';
+      // - добавляем картинке класс (составляем из названия в CSS и радиобаттон.value):
+      preview.classList.add('effects__preview--' + evt.target.value);
+      // - показываем слайдер:
+      slider.classList.remove('hidden');
+      // - скидываем всё до первоначальных настроек:
+      resetToInitialSettings();
+      // если выбран радиобаттон ORIGIN => прячем слайдер:
       if (preview.classList.contains('effects__preview--none')) {
         slider.classList.add('hidden');
-      } else {
-        slider.classList.remove('hidden');
-        // получаем ширину шкалы (линии):
-        var lineOfRangeWidth = lineOfRange.offsetWidth;
-        // устанавливаем положение пина, инпут.value, размер жёлтой полоски:
-        setPosition(lineOfRangeWidth, lineOfRangeWidth);
-        // получаем пропорцию и изменяем в соответствии с ним эффект:
-        var change = getRatio(lineOfRangeWidth, lineOfRangeWidth);
-        changeFilter(change);
       }
     }
   };
@@ -129,4 +150,10 @@
   for (var a = 0; a < radios.length; a++) {
     radios[a].addEventListener('click', onRadioClick);
   }
+
+  // -------------- выводим в глобальную область: ---------------------
+
+  window.effects = {
+    reset: resetAll,
+  };
 })();

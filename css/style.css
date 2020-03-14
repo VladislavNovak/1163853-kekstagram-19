@@ -356,6 +356,10 @@ main {
   cursor: pointer;
 }
 
+img-upload__label:hover {
+  cursor: pointer;
+}
+
 .img-upload__label::after {
   content: "";
   position: absolute;
@@ -1309,6 +1313,7 @@ main {
 
   margin: 0;
   margin-bottom: 50px;
+  line-height: 35px;
 
   font-size: 32px;
 }

@@ -21,43 +21,47 @@
     return picture;
   };
 
+  // ------------ Обработчики событий мыши/клавиатуры: ------------
+
   var closeErrorWindow = function () {
     main.querySelector('.error').remove();
     main.removeEventListener('keydown', onMainPressEsc);
-    document.removeEventListener('click', onDocumentClick);
   };
 
-  var onDocumentClick = function (evt) {
-    if (evt.target.tagName !== 'DIV') {
+  var onMainClick = function (evt) {
+    if (evt.target.closect('.success__inner')) {
       closeErrorWindow();
+      evt.target.removeEventListener('click', onMainClick);
     }
   };
 
   var onMainPressEsc = function (evt) {
-    if (evt === KEY_ESC) {
+    if (evt.key === KEY_ESC) {
       closeErrorWindow();
     }
   };
 
-  // В цикле создаёт похожие объекты извлечённые реквестом:
-  var successHandler = function (data) {
-    // контейнер. Сюда будем помещать объекты, чтобы избежать лишних перерисовок
-    var fragment = document.createDocumentFragment();
+  // -------------- действия при загрузке данных c сервера: ------------
 
+  // в случае успеха:
+  var onSuccess = function (data) {
+    // - создаёт контейнер (чтобы избежать лишних перерисовок):
+    var fragment = document.createDocumentFragment();
+    // - в цикле создаёт похожие объекты извлечённые реквестом:
     for (var i = 0; i < data.length; i++) {
       var picture = processOnePhoto(data[i]);
-      // добавляем объекты в контейнер
+      // - и добавляет объекты в контейнер:
       fragment.appendChild(picture);
     }
 
-    // добавляем контейнер в DOM
+    // - добавляет контейнер в DOM
     var picturesBlock = document.querySelector('.pictures');
     picturesBlock.appendChild(fragment);
 
-    // получаем все картинки .picture:
+    // - получает все картинки .picture:
     var smallPictures = document.querySelectorAll('.picture');
 
-    // обрабатываем клик по картинке .picture:
+    // обрабатывает клик по картинке .picture:
     for (var t = 0; t < smallPictures.length; t++) {
       smallPictures[t].addEventListener('click', function (item) {
         window.bigPicture.draw(item);
@@ -65,50 +69,31 @@
     }
   };
 
-  // удалить позже:
-  // <template id="success">
-  //   <section class="success">
-  //     <div class="success__inner">
-  //       <h2 class="success__title">Изображение успешно загружено</h2>
-  //       <button type="button" class="success__button">Круто!</button>
-  //     </div>
-  //   </section>
-  // </template>
+  // в случае неудачи:
+  var onError = function (messageError) {
+    // - находит шаблон template error...
+    var templateErrorWindow = document.querySelector('#error').content.querySelector('.error');
+    // - клонирует в окно, с которым и будет работать:
+    var errorWindow = templateErrorWindow.cloneNode(true);
+    // - добавляет сообщение об ошибке в errorWindow:
+    errorWindow.querySelector('.error__title').textContent = messageError;
+    // - добавляет окно с ошибкой в main:
+    main.insertAdjacentElement('afterbegin', errorWindow);
 
-  var errorHandler = function (messageError) {
-    // находим шаблон template error...
-    var templateErrorContent = document.querySelector('#error').content.querySelector('.error');
-    // клонируем его и записываем в него данные из messageError:
-    var errorBlock = templateErrorContent.cloneNode(true);
-    // Возможно, нужно будет каждый раз при ошибке показывать окно:
-    // errorBlock.style.dysplay = 'block';
-
-    // добавляем сообщение об ошибке в errorBlock:
-    errorBlock.querySelector('.error__title').textContent = messageError;
-    // и добавляем в окно с ошибкой в main (согласно ПЗ):
-    main.insertAdjacentElement('afterbegin', errorBlock);
-    // main.appendChild(errorBlock);
-
-    // кнопка, которая будет закрывать диалог:
-    var errorButton = errorBlock.querySelector('.error__button');
+    // закрывает окно .error__button:
+    var errorButton = errorWindow.querySelector('.error__button');
+    // - при клике на .error__button:
     errorButton.addEventListener('click', function () {
       closeErrorWindow();
     });
-    // проверяем нажатые клавиши в районе main (нужен ESC):
+    // - по нажатию на клавишу Esc в .main:
     main.addEventListener('keydown', onMainPressEsc);
-    // клик на произвольную область экрана за пределами блока с сообщением:
-    document.addEventListener('click', onDocumentClick);
+    // - по клику на произвольную область экрана:
+    main.addEventListener('click', onMainClick);
   };
 
-  // удалить позже:
-  // <template id="error">
-  //   <section class="error">
-  //     <div class="error__inner">
-  //       <h2 class="error__title">Ошибка загрузки файла</h2>
-  //       <button type="button" class="error__button">Загрузить другой файл</button>
-  //     </div>
-  //   </section>
-  // </template>
+  // --------- Загрузка с сервера: ----------------
 
-  window.backend.load(successHandler, errorHandler);
+  // обрабатывает успешный/неудачный сценарий
+  window.backend.load(onError, onSuccess);
 })();

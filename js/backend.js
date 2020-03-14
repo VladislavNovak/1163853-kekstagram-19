@@ -28,15 +28,15 @@
     return request;
   };
 
-  var load = function (onSuccess, onError) {
-    // var whereFrom = 'https://js.dump.academy/kekstagram/data';
+  // ----------------- Получение данных с сервера: ---------------
+  var load = function (onError, onSuccess) {
     var whereFrom = 'https://js.dump.academy/kekstagram/data';
     // создаём запрос:
     var request = createRequest();
     // и проверяем ещё раз:
     if (!request) {
       // return false;
-      onError('Ошибка. Невозможно создать XMLHttpRequest');
+      onError('Невозможно создать XMLHttpRequest');
     }
 
     request.addEventListener('load', function () {
@@ -59,6 +59,7 @@
           onError('Я - чайник (I’m a teapot)');
           break;
 
+          // в любых других случаях:
         default:
           onError('Статус ответа: ' + request.status + ' ' + request.statusText);
       }
@@ -77,7 +78,44 @@
     request.send();
   };
 
+  // ----------------- Отправка данных на сервер: -----------------
+
+  var save = function (data, onError, onSuccess) {
+    // адрес сервера, на который должны отправиться данные:
+    var URLToSave = 'https://js.dump.academy/kekstagram';
+
+    // создаём запрос:
+    var request = createRequest();
+    // и проверяем ещё раз:
+    if (!request) {
+      // return false;
+      onError('Невозможно создать XMLHttpRequest');
+    }
+
+    request.addEventListener('load', function () {
+      if (request.status === StatusCode.OK) {
+        onSuccess(request.response);
+      } else {
+        onError('Статус ответа: ' + request.status + ' ' + request.statusText);
+      }
+    });
+
+    request.addEventListener('error', function () {
+      onError('Произошла ошибка соединения');
+    });
+
+    request.addEventListener('timeout', function () {
+      onError('Запрос не успел выполниться за ' + request.timeout + 'мс');
+    });
+
+    request.open('POST', URLToSave);
+    // data — объект FormData, который содержит данные формы, которые будут отправлены на сервер:
+    request.send(data);
+  };
+
+  // Добавляем функции отправки/загрузки данных в глобальном объекте:
   window.backend = {
     load: load,
+    save: save,
   };
 })();

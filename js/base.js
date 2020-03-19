@@ -25,17 +25,17 @@
 
   var closeErrorWindow = function () {
     main.querySelector('.error').remove();
-    main.removeEventListener('keydown', onMainPressEsc);
+    document.removeEventListener('keydown', onDocumentPressEsc);
   };
 
-  var onMainClick = function (evt) {
+  var onDocumentClick = function (evt) {
     if (evt.target.closect('.success__inner')) {
       closeErrorWindow();
-      evt.target.removeEventListener('click', onMainClick);
+      evt.target.removeEventListener('click', onDocumentClick);
     }
   };
 
-  var onMainPressEsc = function (evt) {
+  var onDocumentPressEsc = function (evt) {
     if (evt.key === KEY_ESC) {
       closeErrorWindow();
     }
@@ -43,13 +43,12 @@
 
   // -------------- действия при загрузке данных c сервера: ------------
 
-  // в случае успеха:
-  var onSuccess = function (data) {
+  var renderData = function (dataForRender) {
     // - создаёт контейнер (чтобы избежать лишних перерисовок):
     var fragment = document.createDocumentFragment();
     // - в цикле создаёт похожие объекты извлечённые реквестом:
-    for (var i = 0; i < data.length; i++) {
-      var picture = processOnePhoto(data[i]);
+    for (var i = 0; i < dataForRender.length; i++) {
+      var picture = processOnePhoto(dataForRender[i]);
       // - и добавляет объекты в контейнер:
       fragment.appendChild(picture);
     }
@@ -61,12 +60,20 @@
     // - получает все картинки .picture:
     var smallPictures = document.querySelectorAll('.picture');
 
-    // обрабатывает клик по картинке .picture:
+    // - обрабатывает клик по картинке .picture:
     for (var t = 0; t < smallPictures.length; t++) {
       smallPictures[t].addEventListener('click', function (item) {
         window.bigPicture.draw(item);
-      }.bind(null, data[t]));
+      }.bind(null, dataForRender[t]));
     }
+  };
+
+  // в случае успеха:
+  var onSuccess = function (data) {
+    // - сохраняем в переменную, которую передадим в глобальный объект:
+    window.serverData = data.slice();
+    window.sort.action();
+    renderData(data);
   };
 
   // в случае неудачи:
@@ -86,14 +93,19 @@
     errorButton.addEventListener('click', function () {
       closeErrorWindow();
     });
-    // - по нажатию на клавишу Esc в .main:
-    main.addEventListener('keydown', onMainPressEsc);
+    // - по нажатию на клавишу Esc:
+    document.addEventListener('keydown', onDocumentPressEsc);
     // - по клику на произвольную область экрана:
-    main.addEventListener('click', onMainClick);
+    document.addEventListener('click', onDocumentClick);
   };
 
   // --------- Загрузка с сервера: ----------------
 
   // обрабатывает успешный/неудачный сценарий
   window.backend.load(onError, onSuccess);
+
+  // --------- Глобальная область: ----------------
+  window.base = {
+    renderData: renderData,
+  };
 })();

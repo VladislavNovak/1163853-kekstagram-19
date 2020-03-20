@@ -12,6 +12,7 @@
   var commentsCount = picture.querySelector('.social__comment-count').querySelector('.comments-count');
   var socialCommentsList = picture.querySelector('.social__comments');
   var inputSocialFooterText = picture.querySelector('.social__footer-text');
+  // var commentsLoader = picture.querySelector('.comments-loader');
 
   var body = document.body;
   var KEY_ESCAPE = 'Escape';

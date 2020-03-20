@@ -7,21 +7,7 @@
   // сюда будем размещать сообщение о удачной/неудачной загрузке из request:
   var main = document.querySelector('main');
 
-  // Обрабатываем шаблон. Передаём одно описание к фотографии:
-  var processOnePhoto = function (photo) {
-    // находим шаблон template picture...
-    var templatePictureContent = document.querySelector('#picture').content.querySelector('.picture');
-    // клонируем его и записываем в него данные из photo:
-    var picture = templatePictureContent.cloneNode(true);
-    picture.querySelector('.picture__img').src = photo.url;
-    picture.querySelector('.picture__likes').textContent = photo.likes;
-    picture.querySelector('.picture__comments').textContent = photo.comments.length;
-
-    // добавляем 'клону шаблона' нужные свойства и возвращаем его
-    return picture;
-  };
-
-  // ------------ Обработчики событий мыши/клавиатуры: ------------
+  // ------------ Обработчики событий мыши/клавиатуры: ----------------------
 
   var closeErrorWindow = function () {
     main.querySelector('.error').remove();
@@ -41,7 +27,23 @@
     }
   };
 
-  // -------------- действия при загрузке данных c сервера: ------------
+  // ----------- Заполнение template одной единицей данных: -------------------
+
+  // - передаём одно описание к фотографии:
+  var processOnePhoto = function (photo) {
+    // - находим шаблон template picture...
+    var templatePictureContent = document.querySelector('#picture').content.querySelector('.picture');
+    // - клонируем его и записываем в него данные из photo:
+    var picture = templatePictureContent.cloneNode(true);
+    picture.querySelector('.picture__img').src = photo.url;
+    picture.querySelector('.picture__likes').textContent = photo.likes;
+    picture.querySelector('.picture__comments').textContent = photo.comments.length;
+
+    // - добавляем 'клону шаблона' нужные свойства и возвращаем его
+    return picture;
+  };
+
+  // ---------- Загрузка данных в DOM + обработка клика по иконкам: ------------
 
   var renderData = function (dataForRender) {
     // - создаёт контейнер (чтобы избежать лишних перерисовок):
@@ -54,21 +56,22 @@
     }
 
     // - добавляет контейнер в DOM
-    var picturesBlock = document.querySelector('.pictures');
-    picturesBlock.appendChild(fragment);
+    var pictures = document.querySelector('.pictures');
+    pictures.appendChild(fragment);
 
     // - получает все картинки .picture:
-    var smallPictures = document.querySelectorAll('.picture');
+    var gallery = document.querySelectorAll('.picture');
 
     // - обрабатывает клик по картинке .picture:
-    for (var t = 0; t < smallPictures.length; t++) {
-      smallPictures[t].addEventListener('click', function (item) {
-        window.bigPicture.draw(item);
-      }.bind(null, dataForRender[t]));
-    }
+    gallery.forEach(function (icon, index) {
+      icon.addEventListener('click', function () {
+        window.representation.draw(dataForRender[index]);
+      });
+    });
   };
 
-  // в случае успеха:
+  // ------ В случае успешной загрузки с сервера: -----------------------------
+
   var onSuccess = function (data) {
     // - сохраняем в переменную, которую передадим в глобальный объект:
     window.serverData = data.slice();
@@ -76,7 +79,8 @@
     renderData(data);
   };
 
-  // в случае неудачи:
+  // ------ В случае проблем при загрузке с сервера: --------------------------
+
   var onError = function (messageError) {
     // - находит шаблон template error...
     var templateErrorWindow = document.querySelector('#error').content.querySelector('.error');
@@ -99,12 +103,12 @@
     document.addEventListener('click', onDocumentClick);
   };
 
-  // --------- Загрузка с сервера: ----------------
+  // --------- Загрузка с сервера: --------------------------------------------
 
   // обрабатывает успешный/неудачный сценарий
   window.backend.load(onError, onSuccess);
 
-  // --------- Глобальная область: ----------------
+  // --------- Глобальная область: --------------------------------------------
   window.base = {
     renderData: renderData,
   };

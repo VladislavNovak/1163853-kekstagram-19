@@ -27,10 +27,6 @@
     // - body снова можно прокручивать:
     body.classList.remove('modal-open');
     imgUploadInput = '';
-    // - удаляет события клавиатуры/мыши:
-    // imgUploadCancel.removeEventListener('click', onCancelClick);
-    // imgUploadCancel.removeEventListener('keydown', onWindowKeydown);
-    // document.removeEventListener('keydown', onWindowKeydown);
   };
 
   var onWindowKeydown = function (evt) {

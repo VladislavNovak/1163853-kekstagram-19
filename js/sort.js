@@ -7,10 +7,19 @@
     var TOTAL_PHOTOS = 10;
     var sortingBlock = document.querySelector('.img-filters');
     var sortingButtons = sortingBlock.querySelectorAll('.img-filters__button');
-    var pictures = document.querySelector('.pictures');
 
     // - и показываем блок .img-filters:
     sortingBlock.classList.remove('img-filters--inactive');
+
+    // - очищает весь блок с результатом прежней сортировки:
+    var clearPictures = function () {
+      var pictures = document.querySelector('.pictures');
+      var allPictures = pictures.querySelectorAll('.picture');
+      allPictures.forEach(function (element) {
+        // - удаляет все .picture:
+        element.remove();
+      });
+    };
 
     // в debounce исключаем многократное нажатие баттона:
     var onSortingButtonsClick = window.debounce(function (evt) {
@@ -24,7 +33,7 @@
         evt.target.classList.add('img-filters__button--active');
 
         // - очищает весь блок с результатом прежней сортировки:
-        pictures.innerHTML = '';
+        clearPictures();
 
         // - копирует данные для того, чтобы не изменились основные данные:
         var data = window.serverData.slice();

@@ -356,10 +356,6 @@ main {
   cursor: pointer;
 }
 
-img-upload__label:hover {
-  cursor: pointer;
-}
-
 .img-upload__label::after {
   content: "";
   position: absolute;

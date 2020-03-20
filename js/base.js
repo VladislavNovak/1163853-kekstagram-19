@@ -65,7 +65,7 @@
     // - обрабатывает клик по картинке .picture:
     gallery.forEach(function (icon, index) {
       icon.addEventListener('click', function () {
-        window.bigPicture.draw(dataForRender[index]);
+        window.representation.draw(dataForRender[index]);
       });
     });
   };

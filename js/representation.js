@@ -1,4 +1,4 @@
-// --------------bigPicture.js---------------------------------------------------------
+// --------------representation.js---------------------------------------------------------
 // Полноэкранный показ изображения .big-picture:
 'use strict';
 
@@ -33,7 +33,7 @@
   };
 
   // Заполняет .big-picture: url, описание, количество лайков:
-  var drawBigPictures = function (item) {
+  var draw = function (item) {
     // контейнер. Сюда будем помещать объекты, чтобы избежать лишних перерисовок:
     var fragment = document.createDocumentFragment();
 
@@ -49,7 +49,8 @@
     }
 
     // удаляем дефолтные сообщения (в разметке):
-    socialCommentsList.innerHTML = '';
+    // socialCommentsList.innerHTML = '';
+    socialCommentsList.remove();
     // добавляем новые:
     socialCommentsList.appendChild(fragment);
 
@@ -100,7 +101,7 @@
     });
   };
 
-  window.bigPicture = {
-    draw: drawBigPictures,
+  window.representation = {
+    draw: draw,
   };
 })();

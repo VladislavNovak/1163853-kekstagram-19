@@ -99,6 +99,9 @@
 
     // - если это первое открытие окна, то:
     if (isFirstLoad) {
+      // - открываем кнопку загрузки новых комментариев:
+      commentsLoaderButton.classList.remove('hidden');
+
       // - выгружаем пять комментариев (или меньше):
       var fragment = unLoadComments(data);
 
@@ -111,8 +114,7 @@
 
       // - теперь в DOM добавляем новые:
       socialCommentsList.appendChild(fragment);
-      // - открываем кнопку загрузки новых комментариев:
-      commentsLoaderButton.classList.remove('hidden');
+
       // - сигнализируем, что больше этот блок кода не потребуется:
       isFirstLoad = false;
     }
@@ -132,10 +134,14 @@
 
     document.addEventListener('keydown', onBigPicturePressEscape);
 
-    // m4t2 Закрывает окно .big-picture и разрешает прокрутку фона:
+    // Закрывает окно .big-picture и разрешает прокрутку фона:
     var closeBigPicture = function () {
       picture.classList.add('hidden');
       body.classList.remove('modal-open');
+      // - обнуляем счётчик комментариев:
+      globalCommentCounter = 0;
+      // - сигнализируем, что всё готово для нового открытия окна:
+      isFirstLoad = true;
     };
 
     pictureCancel.addEventListener('click', function () {
@@ -148,13 +154,15 @@
       }
     });
 
-    // m4t3 на инпуте стоит фокус
+    // При клике на инпуте:
     inputSocialFooterText.addEventListener('focus', function () {
+      // - устанавливаем флаг:
       isFocusInputSocialFooterText = true;
     });
 
-    // m4t3 с инпута фокус снят
+    // При клике на инпуте:
     inputSocialFooterText.addEventListener('blur', function () {
+      // - флаг снят:
       isFocusInputSocialFooterText = false;
     });
   };

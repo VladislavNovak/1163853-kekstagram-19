@@ -11,6 +11,7 @@
   var isFirstLoad = true;
   var COMMENTS_AT_A_TIME = 5; // количество комментариев при показе за раз
   var globalCommentCounter = 0; // глобальный счётчик комментариев
+  var globalData;
 
   var picture = document.querySelector('.big-picture');
   // m4t2 кнопка/событие закрытия .big-picture:
@@ -20,7 +21,6 @@
   var socialCaption = picture.querySelector('.big-picture__social').querySelector('.social__caption');
   var divCommentCount = picture.querySelector('.social__comment-count');
   var spanCommentsCount = divCommentCount.querySelector('.comments-count');
-
   var socialCommentsList = picture.querySelector('.social__comments');
   var inputSocialFooterText = picture.querySelector('.social__footer-text');
   // кнопка загрузки новых фото:
@@ -47,58 +47,73 @@
     divCommentCount.appendChild(text);
   };
 
-  //
-  var loadComments = function (item) {
+  var onCommentsLoaderButtonClick = function () {
+    var nextFragment = unLoadComments(globalData);
+
+    // - добавляем новые:
+    socialCommentsList.appendChild(nextFragment);
+  };
+
+  // Выгружает COMMENTS_AT_A_TIME комментариев:
+  var unLoadComments = function (item) {
     // - в контейнер будем помещать объекты, чтобы избежать лишних перерисовок:
     var fragment = document.createDocumentFragment();
+    // - локальный счётчик сформированных комментариев:
     var localCommentCounter = 0;
 
-    // - заполняет блок пятью комментариями (или меньше, если комментариев больше нет):
+    // - заполняет блок COMMENTS_AT_A_TIME комментариями (или меньше, если комментариев больше нет):
     while ((localCommentCounter < COMMENTS_AT_A_TIME) && (globalCommentCounter < item.comments.length)) {
       // - формирует один комментарий:
       var comment = processOneComment(item.comments[globalCommentCounter]);
       // - заполняет временный фрагмент:
       fragment.appendChild(comment);
-
+      // - увеличиваем счётчики:
       globalCommentCounter++;
       localCommentCounter++;
     }
 
+    // - если ещё есть незагруженные комментарии:
     if (globalCommentCounter < item.comments.length) {
-      commentsLoaderButton.classList.remove('hidden');
-      commentsLoaderButton.addEventListener('click', function () {
-        loadComments(item);
-      });
+      // - то возможно ещё загрузить следующий блок:
+      commentsLoaderButton.addEventListener('click', onCommentsLoaderButtonClick);
     } else {
+      // - а иначе скрываем кнопку загрузки комментариев:
       commentsLoaderButton.classList.add('hidden');
     }
 
     // - устанавливаем нумерацию в заголовке (сколько/из):
     setNumerationComments(item.comments.length);
 
-    // // - удаляем дефолтные сообщения (в разметке):
-    // socialCommentsList.innerHTML = '';
-
-    // var defaultSocialComments = socialCommentsList.queryselectorAll('.social__comment');
-    // defaultSocialComments.forEach(function (element) {
-    //   element.remove();
-    // });
-
-    // - добавляем новые:
-    socialCommentsList.appendChild(fragment);
+    return fragment;
   };
 
   // ---------- Заполняет .big-picture: url, описание, количество лайков: ----------
 
-  var draw = function (item) {
+  var draw = function (data) {
+    // - сохраняем данные для того, чтобы впоследствии воспользоваться при клике:
+    globalData = data;
     // - заполняем путь, лайки, кол.комментариев, описание:
-    pathToPhoto.src = item.url;
-    socialCountOfLikes.textContent = item.likes;
-    socialCaption.textContent = item.description;
+    pathToPhoto.src = data.url;
+    socialCountOfLikes.textContent = data.likes;
+    socialCaption.textContent = data.description;
 
-    // - загружаем пять комментариев (или меньше):
+    // - если это первое открытие окна, то:
     if (isFirstLoad) {
-      loadComments(item);
+      // - выгружаем пять комментариев (или меньше):
+      var fragment = unLoadComments(data);
+
+      // - находим в DOM дефолтные сообщения:
+      var defaultSocialComments = socialCommentsList.querySelectorAll('.social__comment');
+      defaultSocialComments.forEach(function (element) {
+        // - и удаляем их:
+        element.remove();
+      });
+
+      // - теперь в DOM добавляем новые:
+      socialCommentsList.appendChild(fragment);
+      // - открываем кнопку загрузки новых комментариев:
+      commentsLoaderButton.classList.remove('hidden');
+      // - сигнализируем, что больше этот блок кода не потребуется:
       isFirstLoad = false;
     }
 

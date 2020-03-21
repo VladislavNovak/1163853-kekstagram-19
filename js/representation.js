@@ -1,16 +1,17 @@
 // --------------representation.js---------------------------------------------------------
 // Полноэкранный показ изображения .big-picture:
+
 'use strict';
 
 (function () {
-  var body = document.body;
-  var KEY_ESCAPE = 'Escape';
-  var KEY_ENTER = 'Enter';
-  var isFocusInputSocialFooterText = false;
-
-  var isFirstLoad = true;
   var COMMENTS_AT_A_TIME = 5; // количество комментариев при показе за раз
   var globalCommentCounter = 0; // глобальный счётчик комментариев
+  var KEY_ESCAPE = 'Escape';
+  var KEY_ENTER = 'Enter';
+
+  var isFocusInputSocialFooterText = false;
+  var body = document.body;
+  var isFirstLoad = true;
   var globalData;
 
   var picture = document.querySelector('.big-picture');

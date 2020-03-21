@@ -1,31 +1,12 @@
 // --------------base.js---------------------------------------------------------
 // Создание базы для отрисовки всех фотографий:
+
 'use strict';
 
 (function () {
   var KEY_ESC = 'Escape';
   // сюда будем размещать сообщение о удачной/неудачной загрузке из request:
   var main = document.querySelector('main');
-
-  // ------------ Обработчики событий мыши/клавиатуры: ----------------------
-
-  var closeErrorWindow = function () {
-    main.querySelector('.error').remove();
-    document.removeEventListener('keydown', onDocumentPressEsc);
-  };
-
-  var onDocumentClick = function (evt) {
-    if (evt.target.closect('.success__inner')) {
-      closeErrorWindow();
-      evt.target.removeEventListener('click', onDocumentClick);
-    }
-  };
-
-  var onDocumentPressEsc = function (evt) {
-    if (evt.key === KEY_ESC) {
-      closeErrorWindow();
-    }
-  };
 
   // ----------- Заполнение template одной единицей данных: -------------------
 
@@ -62,7 +43,7 @@
     // - получает все картинки .picture:
     var gallery = document.querySelectorAll('.picture');
 
-    // - обрабатывает клик по картинке .picture:
+    // - обрабатывает клик по картинке .picture (--?/--?):
     gallery.forEach(function (icon, index) {
       icon.addEventListener('click', function () {
         window.representation.draw(dataForRender[index]);
@@ -75,7 +56,7 @@
   var onSuccess = function (data) {
     // - сохраняем в переменную, которую передадим в глобальный объект:
     window.serverData = data.slice();
-    window.sort.action();
+    window.filters.sort();
     renderData(data);
   };
 
@@ -91,16 +72,41 @@
     // - добавляет окно с ошибкой в main:
     main.insertAdjacentElement('afterbegin', errorWindow);
 
-    // закрывает окно .error__button:
+    // Обработчики событий мыши/клавиатуры в контексте .error: ---------
+
+    // клавиша закрытия .error:
     var errorButton = errorWindow.querySelector('.error__button');
-    // - при клике на .error__button:
-    errorButton.addEventListener('click', function () {
+
+    // закрытие окна .error:
+    var closeErrorWindow = function () {
+      if (main.querySelector('.error')) {
+        main.querySelector('.error').remove();
+      }
+    };
+
+    var onMainToCloseErrorWindowClick = function (evt) {
+      if (evt.target.closest('.error__inner')) {
+        closeErrorWindow();
+      }
+    };
+
+    var onDocumentToCloseErrorWindowEsc = function (evt) {
+      if (evt.key === KEY_ESC) {
+        closeErrorWindow();
+        evt.target.removeEventListener('keydown', onDocumentToCloseErrorWindowEsc);
+      }
+    };
+
+    var onErrorButtonClick = function () {
       closeErrorWindow();
-    });
-    // - по нажатию на клавишу Esc:
-    document.addEventListener('keydown', onDocumentPressEsc);
-    // - по клику на произвольную область экрана:
-    document.addEventListener('click', onDocumentClick);
+    };
+
+    // - при клике на .error__button (--/--):
+    errorButton.addEventListener('click', onErrorButtonClick);
+    // - по нажатию на клавишу Esc (добавлен/удалён):
+    document.addEventListener('keydown', onDocumentToCloseErrorWindowEsc);
+    // клик на произвольную область экрана (--/--):
+    main.addEventListener('click', onMainToCloseErrorWindowClick);
   };
 
   // --------- Загрузка с сервера: --------------------------------------------

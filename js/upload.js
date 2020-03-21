@@ -1,24 +1,32 @@
 // --------------upload.js------------------------------------
 // поле для загрузки изображения .upload-file
+
 'use strict';
 
 (function () {
   var KEY_ESC = 'Escape';
   var KEY_ENTER = 'Enter';
 
+  // флаг - находится ли инпут с хэштегами в фокусе
+  var isFocusOnHashTagInput = false;
+
   var body = document.body;
   // сюда будем размещать сообщение о удачной/неудачной загрузке из request:
   var main = document.querySelector('main');
-  // поле выбора файла:
-  var imgUploadInput = document.querySelector('.img-upload .img-upload__input');
+  // корневой объект загрузки изображений:
+  var imgUpload = document.querySelector('.img-upload');
+  // открытие файла:
+  var imgUploadInput = imgUpload.querySelector('.img-upload__input');
   // закрытие поля выбора файла:
-  var imgUploadCancel = document.querySelector('.img-upload .img-upload__cancel');
+  var imgUploadCancel = imgUpload.querySelector('.img-upload__cancel');
   // форма редактирования изображения:
-  var imgUploadOverlay = document.querySelector('.img-upload .img-upload__overlay');
+  var imgUploadOverlay = imgUpload.querySelector('.img-upload__overlay');
+  // инпут с хэштегами:
+  var hashTagsInput = imgUpload.querySelector('.text__hashtags');
   // будем отправлять данные формы на сервер:
-  var form = document.querySelector('.img-upload .img-upload__form');
+  var form = imgUpload.querySelector('.img-upload__form');
 
-  // ------------ Обработчики событий мыши/клавиатуры: ------------
+  // -------- Обработчики событий мыши/клавиатуры в контексте .img-upload__overlay: -------
 
   // при закрытии .img-upload__input:
   var closeUploadWindow = function () {
@@ -26,78 +34,57 @@
     imgUploadOverlay.classList.add('hidden');
     // - body снова можно прокручивать:
     body.classList.remove('modal-open');
+    // - обнуляем .img-upload__input:
     imgUploadInput = '';
   };
 
-  var onWindowKeydown = function (evt) {
-    if (evt.key === KEY_ESC || evt.key === KEY_ENTER) {
+  var onDocumentToCloseUploadWindowEsc = function (evt) {
+    if ((evt.key === KEY_ESC) && (!isFocusOnHashTagInput)) {
+      closeUploadWindow();
+      evt.target.removeEventListener('keydown', onDocumentToCloseUploadWindowEsc);
+    }
+  };
+
+  var onImgUploadCancelEnter = function (evt) {
+    if (evt.key === KEY_ENTER) {
       closeUploadWindow();
     }
   };
 
-  var onCancelClick = function () {
+  var onImgUploadCancelClick = function () {
     closeUploadWindow();
   };
 
-  // закрытие через click на .img-upload__cancel:
-  imgUploadCancel.addEventListener('click', onCancelClick);
-
-  // закрытие через Escape:
-  document.addEventListener('keydown', onWindowKeydown);
-  // если фокус на .img-upload__cancel, закрытие через enter:
-  imgUploadCancel.addEventListener('keydown', onWindowKeydown);
-
-  // m4t2 Открывает .img-upload__input
+  // .img-upload__input открывает .img-upload__overlay
   var showUploadWindow = function () {
     imgUploadOverlay.classList.remove('hidden');
     body.classList.add('modal-open');
   };
 
-  imgUploadInput.addEventListener('change', function () {
+  var onImgUploadInputChange = function () {
     showUploadWindow();
-  });
-
-  var closeSuccessWindow = function () { // -- SUCCESS --
-    if (main.querySelector('.success')) {
-      main.querySelector('.success').remove();
-    }
-    main.removeEventListener('keydown', onDocumentPressEcsToCloseSuccessWindow);
   };
 
-  var onSuccessButtonClick = function () { // -- SUCCESS --
-    closeSuccessWindow();
+  var onInputFocus = function () {
+    isFocusOnHashTagInput = true;
   };
 
-  var onDocumentPressEcsToCloseSuccessWindow = function (evt) { // -- SUCCESS --
-    if (evt.key === KEY_ESC) {
-      closeSuccessWindow();
-    }
+  var onInputBlur = function () {
+    isFocusOnHashTagInput = false;
   };
 
-  var onMainClickToCloseSuccessWindow = function (evt) { // -- SUCCESS --
-    if (!evt.target.closest('.success__inner')) {
-      closeSuccessWindow();
-    }
-  };
-
-  var closeErrorWindow = function () { // -- ERROR --
-    if (main.querySelector('.error')) {
-      main.querySelector('.error').remove();
-    }
-  };
-
-  var onMainClickToCloseErrorWindow = function (evt) { // -- ERROR --
-    if (evt.target.closest('.error__inner')) {
-      closeErrorWindow();
-      evt.target.removeEventListener('click', onMainClickToCloseErrorWindow);
-    }
-  };
-
-  var onDocumentPressEscToCloseErrorWindow = function (evt) { // -- ERROR --
-    if (evt.key === KEY_ESC) {
-      closeErrorWindow();
-    }
-  };
+  // .text__hashtags в фокусе (--/--):
+  hashTagsInput.addEventListener('focus', onInputFocus);
+  // .text__hashtags фокус снят (--/--):
+  hashTagsInput.addEventListener('blur', onInputBlur);
+  // при изменении .img-upload__input (добавлен/--):
+  imgUploadInput.addEventListener('change', onImgUploadInputChange);
+  // click на .img-upload__cancel (--/--):
+  imgUploadCancel.addEventListener('click', onImgUploadCancelClick);
+  // закрытие через Escape (добавлен/удалён):
+  document.addEventListener('keydown', onDocumentToCloseUploadWindowEsc);
+  // если фокус на .img-upload__cancel, закрытие через enter (добавлен/удалён):
+  imgUploadCancel.addEventListener('keydown', onImgUploadCancelEnter);
 
   // -------------- действия при сохранении данных на сервер: ------------
 
@@ -110,14 +97,42 @@
     // - добавляет в окно с ошибкой в main:
     main.insertAdjacentElement('afterbegin', successWindow); // main.appendChild(successWindow);
 
+    // Обработка событий клавиатуры в контексте .success: --------------
+
     // закрывает окно .success__button:
     var successButton = successWindow.querySelector('.success__button');
-    // - при клике на .success__button:
+
+    var closeSuccessWindow = function () {
+      if (main.querySelector('.success')) {
+        main.querySelector('.success').remove();
+      }
+    };
+
+    var onSuccessButtonClick = function (evt) {
+      closeSuccessWindow();
+      evt.target.removeEventListener('click', onSuccessButtonClick);
+    };
+
+    var onDocumentToCloseSuccessWindowEsc = function (evt) {
+      if (evt.key === KEY_ESC) {
+        closeSuccessWindow();
+        evt.target.addEventListener('keydown', onDocumentToCloseSuccessWindowEsc);
+      }
+    };
+
+    var onMainToCloseSuccessWindowClick = function (evt) {
+      if (!evt.target.closest('.success__inner')) {
+        closeSuccessWindow();
+        evt.target.addEventListener('click', onMainToCloseSuccessWindowClick);
+      }
+    };
+
+    // - при клике на .success__button (добавлен/удалён):
     successButton.addEventListener('click', onSuccessButtonClick);
-    // - по нажатию на клавишу Esc:
-    document.addEventListener('keydown', onDocumentPressEcsToCloseSuccessWindow);
-    // - по клику на произвольную область экрана:
-    main.addEventListener('click', onMainClickToCloseSuccessWindow);
+    // - по нажатию на клавишу Esc (добавлен/удалён):
+    document.addEventListener('keydown', onDocumentToCloseSuccessWindowEsc);
+    // - по клику на произвольную область экрана (добавлен/удалён):
+    main.addEventListener('click', onMainToCloseSuccessWindowClick);
   };
 
   // После успешной передачи данных на сервер:
@@ -132,7 +147,8 @@
     showMessage();
   };
 
-  // В случае невозможности сохранение данных на сервер:
+  // ---------- В случае невозможности сохранение данных на сервер: -------------
+
   var onError = function (messageError) {
     // - находит шаблон template error...
     var templateErrorWindow = document.querySelector('#error').content.querySelector('.error');
@@ -143,16 +159,41 @@
     // - добавляет окно с ошибкой в main:
     main.insertAdjacentElement('afterbegin', errorWindow);
 
-    // закрывает окно .error__button:
+    // Обработка событий клавиатуры в контексте .error: --------------
+
+    // кнопка закрытия окна .error:
     var errorButton = errorWindow.querySelector('.error__button');
-    // - при клике на .error__button:
-    errorButton.addEventListener('click', function () {
+
+    // закрытие окна .error:
+    var closeErrorWindow = function () {
+      if (main.querySelector('.error')) {
+        main.querySelector('.error').remove();
+      }
+    };
+
+    var onMainToCloseErrorWindowClick = function (evt) {
+      if (evt.target.closest('.error__inner')) {
+        closeErrorWindow();
+      }
+    };
+
+    var onDocumentToCloseErrorWindowEsc = function (evt) {
+      if (evt.key === KEY_ESC) {
+        closeErrorWindow();
+        evt.target.removeEventListener('keydown', onDocumentToCloseErrorWindowEsc);
+      }
+    };
+
+    var onErrorButtonClick = function () {
       closeErrorWindow();
-    });
-    // - по нажатию на клавишу Esc в .main:
-    document.addEventListener('keydown', onDocumentPressEscToCloseErrorWindow);
-    // - по клику на произвольную область экрана:
-    main.addEventListener('click', onMainClickToCloseErrorWindow);
+    };
+
+    // при клике на .error__button (--/--):
+    errorButton.addEventListener('click', onErrorButtonClick);
+    // по нажатию на клавишу Esc (добавлен/удалён):
+    document.addEventListener('keydown', onDocumentToCloseErrorWindowEsc);
+    // по клику на произвольную область экрана (--/--):
+    main.addEventListener('click', onMainToCloseErrorWindowClick);
   };
 
   // ---------Сохранение формы (и отправка на сервер):----------------

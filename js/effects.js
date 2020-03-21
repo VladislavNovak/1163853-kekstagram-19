@@ -1,5 +1,6 @@
 // -----------------effects.js--------------------------------------------------------
 // Изменение глубины эффекта, накладываемого на изображение:----------
+
 'use strict';
 
 (function () {
@@ -146,10 +147,10 @@
     }
   };
 
-  // обрабатывает клик на каждом радиобаттоне .effects__radio:
-  for (var a = 0; a < radios.length; a++) {
-    radios[a].addEventListener('click', onRadioClick);
-  }
+  // обрабатывает клик на каждом радиобаттоне .effects__radio (--?/--?):
+  radios.forEach(function (radioButton) {
+    radioButton.addEventListener('click', onRadioClick);
+  });
 
   // -------------- выводим в глобальную область: ---------------------
 

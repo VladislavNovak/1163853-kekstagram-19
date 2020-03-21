@@ -17,7 +17,6 @@
   var preview = uploadForm.querySelector('.img-upload__preview').querySelector('img');
   var radios = uploadForm.querySelectorAll('.effects__radio');
 
-  // m5t3---------------------------------------------------
   // получает пропорцию исходя из текущего положения пина (value) относительно общей длины слайдера (width):
   var getRatio = function (value, width) {
     return Math.floor(value * 100 / width);
@@ -126,6 +125,10 @@
     radios[ORIGIN].checked = true;
     // - скидываем всё до первоначальных настроек:
     resetToInitialSettings();
+    // - обнуляем класс:
+    preview.classList = 'none';
+    // - обнуляем фильтр:
+    preview.style.filter = 'none';
   };
 
   // при выборе радиобаттона:
@@ -142,6 +145,7 @@
       resetToInitialSettings();
       // если выбран радиобаттон ORIGIN => прячем слайдер:
       if (preview.classList.contains('effects__preview--none')) {
+        preview.style.filter = 'none';
         slider.classList.add('hidden');
       }
     }

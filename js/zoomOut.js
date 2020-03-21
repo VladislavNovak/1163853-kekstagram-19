@@ -16,7 +16,7 @@
   var zoomOut = uploadForm.querySelector('.img-upload__scale');
   var minus = zoomOut.querySelector('.scale__control--smaller');
   var plus = zoomOut.querySelector('.scale__control--bigger');
-  var counter = zoomOut.querySelector('.scale__control--value');
+  var control = zoomOut.querySelector('.scale__control--value');
   // предварительный просмотр:
   var preview = uploadForm.querySelector('.img-upload__preview').querySelector('img');
 
@@ -24,22 +24,31 @@
 
   // клик на минусе => уменьшает значение scale__control--value с шагом в 25:
   minus.addEventListener('click', function () {
-    var counterValue = parseInt(counter.value, 10);
+    var counterValue = parseInt(control.value, 10);
     if (counterValue > BOTTOM_LIMIT) {
       counterValue -= STEP;
-      counter.value = counterValue + '%';
-      preview.style.transform = 'scale(' + parseInt(counter.value, 10) / 100 + ')';
+      control.value = counterValue + '%';
+      preview.style.transform = 'scale(' + parseInt(control.value, 10) / 100 + ')';
     }
   });
 
   // клик на плюсе => увеличивает значение scale__control--value с шагом в 25:
   plus.addEventListener('click', function () {
-    var counterValue = parseInt(counter.value, 10);
+    var counterValue = parseInt(control.value, 10);
     if (counterValue < TOP_LIMIT) {
       counterValue += STEP;
-      counter.value = counterValue + '%';
-      preview.style.transform = 'scale(' + parseInt(counter.value, 10) / 100 + ')';
+      control.value = counterValue + '%';
+      preview.style.transform = 'scale(' + parseInt(control.value, 10) / 100 + ')';
     }
   });
+
+  var setDefault = function () {
+    control.value = '100%';
+    preview.style.transform = 'scale(1)';
+  };
+
+  window.zoomOut = {
+    setDefault: setDefault,
+  };
 
 })();

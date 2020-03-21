@@ -30,6 +30,10 @@
 
   // при закрытии .img-upload__input:
   var closeUploadWindow = function () {
+    // - обнуляем эффекты:
+    window.effects.reset();
+    // - обнуляем zoomOut:
+    window.zoomOut.setDefault();
     // - скрывает форму редактирования изображения:
     imgUploadOverlay.classList.add('hidden');
     // - body снова можно прокручивать:

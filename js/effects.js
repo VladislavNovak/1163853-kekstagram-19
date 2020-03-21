@@ -1,5 +1,6 @@
 // -----------------effects.js--------------------------------------------------------
 // Изменение глубины эффекта, накладываемого на изображение:----------
+
 'use strict';
 
 (function () {
@@ -16,7 +17,6 @@
   var preview = uploadForm.querySelector('.img-upload__preview').querySelector('img');
   var radios = uploadForm.querySelectorAll('.effects__radio');
 
-  // m5t3---------------------------------------------------
   // получает пропорцию исходя из текущего положения пина (value) относительно общей длины слайдера (width):
   var getRatio = function (value, width) {
     return Math.floor(value * 100 / width);
@@ -125,6 +125,10 @@
     radios[ORIGIN].checked = true;
     // - скидываем всё до первоначальных настроек:
     resetToInitialSettings();
+    // - обнуляем класс:
+    preview.classList = 'none';
+    // - обнуляем фильтр:
+    preview.style.filter = 'none';
   };
 
   // при выборе радиобаттона:
@@ -141,15 +145,16 @@
       resetToInitialSettings();
       // если выбран радиобаттон ORIGIN => прячем слайдер:
       if (preview.classList.contains('effects__preview--none')) {
+        preview.style.filter = 'none';
         slider.classList.add('hidden');
       }
     }
   };
 
-  // обрабатывает клик на каждом радиобаттоне .effects__radio:
-  for (var a = 0; a < radios.length; a++) {
-    radios[a].addEventListener('click', onRadioClick);
-  }
+  // обрабатывает клик на каждом радиобаттоне .effects__radio (--?/--?):
+  radios.forEach(function (radioButton) {
+    radioButton.addEventListener('click', onRadioClick);
+  });
 
   // -------------- выводим в глобальную область: ---------------------
 

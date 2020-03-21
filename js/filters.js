@@ -1,25 +1,26 @@
-// -----------------sort.js--------------------------------------------------------
+// -----------------filters.js--------------------------------------------------------
 // Фильтры, управляющие порядком сортировки фотографий:----------
+
 'use strict';
 
 (function () {
-  var action = function () {
+  // - очищает весь блок с результатом прежней сортировки:
+  var clearPictures = function () {
+    var pictures = document.querySelector('.pictures');
+    var allPictures = pictures.querySelectorAll('.picture');
+    allPictures.forEach(function (element) {
+      // - удаляет все .picture:
+      element.remove();
+    });
+  };
+
+  var sort = function () {
     var TOTAL_PHOTOS = 10;
     var sortingBlock = document.querySelector('.img-filters');
     var sortingButtons = sortingBlock.querySelectorAll('.img-filters__button');
 
     // - и показываем блок .img-filters:
     sortingBlock.classList.remove('img-filters--inactive');
-
-    // - очищает весь блок с результатом прежней сортировки:
-    var clearPictures = function () {
-      var pictures = document.querySelector('.pictures');
-      var allPictures = pictures.querySelectorAll('.picture');
-      allPictures.forEach(function (element) {
-        // - удаляет все .picture:
-        element.remove();
-      });
-    };
 
     // в debounce исключаем многократное нажатие баттона:
     var onSortingButtonsClick = window.debounce(function (evt) {
@@ -82,7 +83,7 @@
   };
 
   // --------- Глобальная область: ----------------
-  window.sort = {
-    action: action,
+  window.filters = {
+    sort: sort,
   };
 })();

@@ -100,6 +100,13 @@
 
   // -------------Наложение эффекта на изображение:-------------------------
 
+  var setOriginalStyle = function () {
+    // - обнуляем фильтр:
+    preview.style.filter = 'none';
+    // - прячем слайдер:
+    slider.classList.add('hidden');
+  };
+
   // скидываем всё до первоначальных настроек:
   var resetToInitialSettings = function () {
     // - получаем ширину шкалы (линии):
@@ -111,25 +118,18 @@
     changeFilter(change);
   };
 
-  // при первом открытии окна:
-  if (radios[ORIGIN].checked) {
-    // - прячем слайдер:
-    slider.classList.add('hidden');
-    // - скидываем до первоначальных настроек:
-    resetToInitialSettings();
-  }
-
   // понадобится при отправке формы:
   var resetAll = function () {
     // - переключим на первый радиобаттон:
     radios[ORIGIN].checked = true;
-    // - скидываем всё до первоначальных настроек:
-    resetToInitialSettings();
-    // - обнуляем класс:
-    preview.classList = 'none';
-    // - обнуляем фильтр:
-    preview.style.filter = 'none';
+    resetToInitialSettings(); // <= скидываем всё до первоначальных настроек
+    setOriginalStyle(); // <= обнуляем фильтр, прячем слайдер
   };
+
+  // при первом открытии окна:
+  if (radios[ORIGIN].checked) {
+    setOriginalStyle(); // <= обнуляем фильтр, прячем слайдер
+  }
 
   // при выборе радиобаттона:
   var onRadioClick = function (evt) {
@@ -141,15 +141,14 @@
       preview.classList.add('effects__preview--' + evt.target.value);
       // - показываем слайдер:
       slider.classList.remove('hidden');
-      // - скидываем всё до первоначальных настроек:
-      resetToInitialSettings();
+      resetToInitialSettings(); // <= скидываем всё до первоначальных настроек:
       // если выбран радиобаттон ORIGIN => прячем слайдер:
       if (preview.classList.contains('effects__preview--none')) {
-        preview.style.filter = 'none';
-        slider.classList.add('hidden');
+        setOriginalStyle(); // <= обнуляем фильтр, прячем слайдер
       }
     }
   };
+
 
   // обрабатывает клик на каждом радиобаттоне .effects__radio (--?/--?):
   radios.forEach(function (radioButton) {

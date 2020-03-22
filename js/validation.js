@@ -8,29 +8,34 @@
   var MAX_QUANTITY_HASHTAGS = 5;
   var MAX_LENGTH_HASHTAG = 20;
 
+  // флаг - условие не прошло валидацию:
+  var isErrorValidity;
+
   var uploadForm = document.querySelector('.img-upload__form');
   var hashTagsInput = uploadForm.querySelector('.text__hashtags');
   var imgUploadSubmit = uploadForm.querySelector('.img-upload__submit');
   var textDescription = uploadForm.querySelector('.text__description');
 
-  // флаг - условие не прошло валидацию:
-  var isErrorValidity;
+  var setAppearanceOfHashtagField = function () {
+    // если isErrorValidity == true, устанавливаем красную рамку:
+    hashTagsInput.style.boxShadow = (isErrorValidity) ? '0 0 3px 2px #B22222' : 'none';
+  };
 
-  // если isErrorValidity = true:
-  var occuredErrorValidity = function () {
-    hashTagsInput.style.boxShadow = (isErrorValidity) ? '0 0 2px 2px #B22222' : 'none';
+  var setDefault = function () {
+    // - обнуляет сообщения об ошибках:
+    hashTagsInput.setCustomValidity('');
+    // - изначально устанавливаем флаг об отсутствии ошибок:
+    isErrorValidity = false;
   };
 
   hashTagsInput.addEventListener('input', function (evt) {
-    // Если есть какое-то значение, производим проверку (по условию ТЗ значения может и не быть):
-    if (hashTagsInput.value) {
-      // default:
-      evt.target.setCustomValidity('');
-      isErrorValidity = false;
+    setDefault(); // <= обнуляем сообщение об ошибках, флаг isErrorValidity устанавливаем в false
 
+    // Если есть какое-то значение, производим проверку (по условию ТЗ значения может и не быть):
+    if (evt.target.value.length >= 1) {
       // регулярные выражения:
       var divider = /\s+/;
-      var pattern = /^#([A-Za-z0-9А-Яа-я]{2,19})$/;
+      var pattern = /^#([A-Za-z0-9А-Яа-я]{1,19})$/;
       // формируем массив, удаляя боковые пробелы, разделяя по внутренним пробелам:
       var hashTags = evt.target.value.toLowerCase().trim().split(divider);
       // проверяем количество введённых тегов:
@@ -42,10 +47,10 @@
       // в цикле:
       for (var i = 0; i < hashTags.length; i++) {
         var hashTag = hashTags[i];
-        // - проверяем по соответствию шаблону ^#([A-Za-z0-9А-Яа-я]{2,19})$:
+        // - проверяем по соответствию шаблону ^#([A-Za-z0-9А-Яа-я]{1,19})$:
         if (!pattern.test(hashTag)) {
           isErrorValidity = true;
-          evt.target.setCustomValidity('Хэштег "' + hashTag + '" должен соответствовать шаблону: # за которым следуют любые не специальные символы (от двух до 20-и) без пробелов)');
+          evt.target.setCustomValidity('Хэштег "' + hashTag + '" должен соответствовать шаблону: # за которым следуют любые не специальные символы (от одного до 20-и) без пробелов)');
         }
         // - длину:
         if (hashTag.length === 1) {
@@ -68,8 +73,12 @@
         }
       }
 
-      // если isErrorValidity = true:
-      occuredErrorValidity();
+      setAppearanceOfHashtagField(); // <= устанавливаем внешний вид .text__hashtags:
+    }
+
+    // если в .text__hashtags ничего не введено:
+    if (evt.target.value.length === 0) {
+      setAppearanceOfHashtagField(); // <= отключаем красную рамку
     }
   });
 
@@ -85,10 +94,15 @@
   textDescription.addEventListener('invalid', function () {
     if (textDescription.validity.tooLong) {
       textDescription.setCustomValidity('Длина комментария не может составлять больше 140 символов!');
-      occuredErrorValidity();
+      setAppearanceOfHashtagField();
     } else {
       textDescription.setCustomValidity('');
     }
   });
+
+  window.validation = {
+    setDefault: setDefault,
+    setAppearanceOfHashtagField: setAppearanceOfHashtagField,
+  };
 
 })();

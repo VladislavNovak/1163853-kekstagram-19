@@ -23,6 +23,8 @@
   var imgUploadOverlay = imgUpload.querySelector('.img-upload__overlay');
   // инпут с хэштегами:
   var hashTagsInput = imgUpload.querySelector('.text__hashtags');
+  // примечания:
+  var textDescription = imgUpload.querySelector('.text__description');
   // будем отправлять данные формы на сервер:
   var form = imgUpload.querySelector('.img-upload__form');
 
@@ -38,8 +40,12 @@
     imgUploadOverlay.classList.add('hidden');
     // - body снова можно прокручивать:
     body.classList.remove('modal-open');
-    // - обнуляем .img-upload__input:
-    imgUploadInput = '';
+    // - обнуляем .img-upload__input, .text__hashtags, .text__description:
+    imgUploadInput.value = '';
+    hashTagsInput.value = '';
+    textDescription.value = '';
+    window.validation.setDefault();
+    window.validation.setAppearanceOfHashtagField();
   };
 
   var onDocumentToCloseUploadWindowEsc = function (evt) {
@@ -63,10 +69,8 @@
   var showUploadWindow = function () {
     imgUploadOverlay.classList.remove('hidden');
     body.classList.add('modal-open');
-  };
-
-  var onImgUploadInputChange = function () {
-    showUploadWindow();
+    // - отключаем required, т.к. по условиям, хэштеги можно не вводить:
+    hashTagsInput.required = false;
   };
 
   var onInputFocus = function () {
@@ -81,8 +85,13 @@
   hashTagsInput.addEventListener('focus', onInputFocus);
   // .text__hashtags фокус снят (--/--):
   hashTagsInput.addEventListener('blur', onInputBlur);
+
   // при изменении .img-upload__input (добавлен/--):
-  imgUploadInput.addEventListener('change', onImgUploadInputChange);
+  imgUploadInput.addEventListener('change', function (evt) {
+    showUploadWindow(); // <= открывает .img-upload__overlay
+    window.filereader.showPreview(evt); // <= загружает фотографию пользователя в .img-upload__preview img
+  });
+
   // click на .img-upload__cancel (--/--):
   imgUploadCancel.addEventListener('click', onImgUploadCancelClick);
   // закрытие через Escape (добавлен/удалён):
@@ -205,6 +214,6 @@
   // обрабатывает успешный/неудачный сценарий
   form.addEventListener('submit', function (evt) {
     evt.preventDefault();
-    window.backend.save(new FormData(form), onError, onSuccess);
+    window.backend.request(onError, onSuccess, window.backend.POST_METOD, window.backend.URLTOSAVE, new FormData(form));
   });
 })();

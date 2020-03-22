@@ -13,39 +13,27 @@
     IM_A_TEAPOT: 418,
   };
 
-  // создаёт кроссбраузерный вариант запроса:
-  var createRequest = function () {
-    var request = false;
-    request = new XMLHttpRequest();
-    request.responseType = 'json';
-    if (request.overrideMimeType) {
-      request.overrideMimeType('text/xml');
+  var request = function (onError, onSuccess, method, url, data) {
+    var xhr = new XMLHttpRequest();
+    xhr.responseType = 'json';
+    if (xhr.overrideMimeType) {
+      xhr.overrideMimeType('text/xml');
     }
 
-    return request;
-  };
-
-  // ----------------- Получение данных с сервера: ---------------
-  var load = function (onError, onSuccess) {
-    var WHEREFROM = 'https://js.dump.academy/kekstagram/data';
-    // создаём запрос:
-    var request = createRequest();
-    // и проверяем ещё раз:
-    if (!request) {
-      // return false;
+    if (!xhr) {
       onError('Невозможно создать XMLHttpRequest');
     }
 
-    request.addEventListener('load', function () {
-      switch (request.status) {
+    xhr.addEventListener('load', function () {
+      switch (xhr.status) {
         case StatusCode.OK:
           // onSuccess срабатывает при успешном выполнении запроса
-          onSuccess(request.response);
+          onSuccess(xhr.response);
           break;
 
         case StatusCode.BAD_REQUEST:
           // onError срабатывают при неуспешном выполнении запроса
-          onError('Неверный запрос (Bad Request)');
+          onError('Неверный запрос (Bad XMLHttpReques)');
           break;
 
         case StatusCode.NOT_FOUND:
@@ -58,61 +46,38 @@
 
           // в любых других случаях:
         default:
-          onError('Статус ответа: ' + request.status + ' ' + request.statusText);
+          onError('Ошибка! Статус ответа: ' + xhr.status + ' ' + xhr.statusText);
       }
     });
 
-    request.addEventListener('error', function () {
+    xhr.addEventListener('error', function () {
       onError('Произошла ошибка соединения');
     });
 
-    request.addEventListener('timeout', function () {
-      onError('Запрос не успел выполниться за ' + request.timeout + 'мс');
+    xhr.addEventListener('timeout', function () {
+      onError('Запрос не успел выполниться за ' + xhr.timeout + 'мс');
     });
 
-    request.timeout = TIMEOUT_IN_MS;
-    request.open('GET', WHEREFROM);
-    request.send();
-  };
+    xhr.timeout = TIMEOUT_IN_MS;
+    xhr.open(method, url);
 
-  // ----------------- Отправка данных на сервер: -----------------
-
-  var save = function (data, onError, onSuccess) {
-    // адрес сервера, на который должны отправиться данные:
-    var URLTOSAVE = 'https://js.dump.academy/kekstagram';
-
-    // создаём запрос:
-    var request = createRequest();
-    // и проверяем ещё раз:
-    if (!request) {
-      // return false;
-      onError('Невозможно создать XMLHttpRequest');
+    // если аргументов пять, значит отправляем на сервер, четыре - получаем с сервера:
+    if (arguments.length === 5) {
+      // data — объект FormData, который содержит данные формы, которые будут отправлены на сервер:
+      xhr.send(data);
+    } else {
+      xhr.send();
     }
-
-    request.addEventListener('load', function () {
-      if (request.status === StatusCode.OK) {
-        onSuccess(request.response);
-      } else {
-        onError('Статус ответа: ' + request.status + ' ' + request.statusText);
-      }
-    });
-
-    request.addEventListener('error', function () {
-      onError('Произошла ошибка соединения');
-    });
-
-    request.addEventListener('timeout', function () {
-      onError('Запрос не успел выполниться за ' + request.timeout + 'мс');
-    });
-
-    request.open('POST', URLTOSAVE);
-    // data — объект FormData, который содержит данные формы, которые будут отправлены на сервер:
-    request.send(data);
   };
 
   // Добавляем функции отправки/загрузки данных в глобальном объекте:
   window.backend = {
-    load: load,
-    save: save,
+    request: request,
+    // адрес сервера, с которого должны поучить данные:
+    WHEREFROM: 'https://js.dump.academy/kekstagram/data',
+    // адрес сервера, на который должны отправиться данные:
+    URLTOSAVE: 'https://js.dump.academy/kekstagram',
+    GET_METHOD: 'GET',
+    POST_METOD: 'POST',
   };
 })();

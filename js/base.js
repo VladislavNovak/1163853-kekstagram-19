@@ -112,7 +112,8 @@
   // --------- Загрузка с сервера: --------------------------------------------
 
   // обрабатывает успешный/неудачный сценарий
-  window.backend.load(onError, onSuccess);
+  window.backend.request(onError, onSuccess, window.backend.GET_METHOD, window.backend.WHEREFROM);
+  // window.backend.load(onError, onSuccess);
 
   // --------- Глобальная область: --------------------------------------------
   window.base = {

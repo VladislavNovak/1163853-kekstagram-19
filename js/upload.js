@@ -9,6 +9,8 @@
 
   // флаг - находится ли инпут с хэштегами в фокусе
   var isFocusOnHashTagInput = false;
+  // флаг - находится ли текстария в фокусе
+  var isFocusOntextDescription = false;
 
   var body = document.body;
   // сюда будем размещать сообщение о удачной/неудачной загрузке из request:
@@ -49,7 +51,7 @@
   };
 
   var onDocumentToCloseUploadWindowEsc = function (evt) {
-    if ((evt.key === KEY_ESC) && (!isFocusOnHashTagInput)) {
+    if ((evt.key === KEY_ESC) && (!isFocusOnHashTagInput) && (!isFocusOntextDescription)) {
       closeUploadWindow();
       evt.target.removeEventListener('keydown', onDocumentToCloseUploadWindowEsc);
     }
@@ -81,10 +83,23 @@
     isFocusOnHashTagInput = false;
   };
 
+  var onDescriptionFocus = function () {
+    isFocusOntextDescription = true;
+  };
+
+  var onDescriptionBlur = function () {
+    isFocusOntextDescription = false;
+  };
+
   // .text__hashtags в фокусе (--/--):
   hashTagsInput.addEventListener('focus', onInputFocus);
   // .text__hashtags фокус снят (--/--):
   hashTagsInput.addEventListener('blur', onInputBlur);
+
+  // .text__hashtags в фокусе (--/--):
+  textDescription.addEventListener('focus', onDescriptionFocus);
+  // .text__hashtags фокус снят (--/--):
+  textDescription.addEventListener('blur', onDescriptionBlur);
 
   // при изменении .img-upload__input (добавлен/--):
   imgUploadInput.addEventListener('change', function (evt) {

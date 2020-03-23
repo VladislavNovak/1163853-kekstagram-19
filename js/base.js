@@ -113,7 +113,6 @@
 
   // обрабатывает успешный/неудачный сценарий
   window.backend.request(onError, onSuccess, window.backend.GET_METHOD, window.backend.WHEREFROM);
-  // window.backend.load(onError, onSuccess);
 
   // --------- Глобальная область: --------------------------------------------
   window.base = {
